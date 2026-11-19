@@ -8,7 +8,7 @@ import java.net.URL
 import java.util.concurrent.TimeUnit
 
 /** GANTI USER/REPO dengan repo GitHub Anda (tempat pipeline menyimpan blocklist.txt & cosmetic.txt). */
-const val BASE_URL = "https://raw.githubusercontent.com/USER/REPO/main/"
+const val BASE_URL = "https://raw.githubusercontent.com/lagirame2025/AEGIS-ADBLOCK-PREMIUM/main/"
 
 class Updater(c: Context, p: WorkerParameters) : Worker(c, p) {
     override fun doWork(): Result = if (fetch(applicationContext)) Result.success() else Result.retry()
