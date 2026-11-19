@@ -1,0 +1,6 @@
+localhost
+googleapis.com
+gstatic.com
+github.com
+githubusercontent.com
+whatsapp.net

@@ -1,0 +1,12 @@
+# selektor generik (seed)
+.adsbygoogle
+ins.adsbygoogle
+.ad-banner
+.ad-slot
+.advert
+.advertisement
+[id^="google_ads"]
+[id^="div-gpt-ad"]
+[class*="sponsored-ad"]
+iframe[src*="doubleclick.net"]
+iframe[src*="googlesyndication"]
