@@ -75,13 +75,24 @@ class MainActivity : Activity() {
         strictRow.addView(TextView(this).apply { text = "Mode ketat (heuristik iklan + blokir DoH)  " })
         strictRow.addView(strictSwitch)
 
+        // Aplikasi panggilan (WhatsApp, Telegram, Meet, dll.) tidak lewat tunnel agar panggilan tidak macet di "Connecting".
+        val callRow = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER }
+        callRow.addView(TextView(this).apply { text = "Kecualikan aplikasi panggilan (WhatsApp dll.)  " })
+        callRow.addView(Switch(this).apply {
+            isChecked = prefs.getBoolean(Prefs.CALL_BYPASS, true)
+            setOnCheckedChangeListener { _, on ->
+                prefs.edit().putBoolean(Prefs.CALL_BYPASS, on).apply()
+                Toast.makeText(this@MainActivity, "Matikan lalu aktifkan lagi proteksi agar berlaku.", Toast.LENGTH_LONG).show()
+            }
+        })
+
         val battery = Button(this).apply {
             text = "Minta izin bebas optimisasi baterai"
             setOnClickListener { requestBatteryExemption() }
         }
 
         root.addView(stats); root.addView(toggle); root.addView(br); root.addView(pd)
-        root.addView(strictRow); root.addView(autostartRow)
+        root.addView(strictRow); root.addView(callRow); root.addView(autostartRow)
         val bypassBtn = Button(this).apply { text = "Aplikasi dikecualikan (bypass VPN)"; setOnClickListener { showBypass() } }
         val fixBtn = Button(this).apply { text = "Ada yang rusak? Perbaiki cepat"; setOnClickListener { quickFix() } }
         val autoRow = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER }

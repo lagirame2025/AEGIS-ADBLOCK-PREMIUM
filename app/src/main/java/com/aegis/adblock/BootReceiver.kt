@@ -26,4 +26,5 @@ object Prefs {
     const val STRICT = "strict_mode"
     const val BYPASS = "bypass_apps"
     const val AUTO = "auto_allow"
+    const val CALL_BYPASS = "call_apps_bypass"
 }

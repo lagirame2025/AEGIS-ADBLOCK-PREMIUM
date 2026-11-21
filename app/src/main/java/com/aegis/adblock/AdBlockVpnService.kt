@@ -58,6 +58,18 @@ class AdBlockVpnService : VpnService() {
         private val HIJACK = arrayOf(
             "8.8.8.8", "8.8.4.4", "1.1.1.1", "1.0.0.1", "9.9.9.9", "149.112.112.112", "208.67.222.222", "208.67.220.220"
         )
+        /**
+         * Aplikasi panggilan suara/video. Panggilan memakai UDP/ICE langsung ke relay dan sangat sensitif terhadap
+         * antarmuka tunnel (kandidat jaringan salah -> status "Connecting" selamanya), jadi dikecualikan dari VPN
+         * secara bawaan. Aplikasi yang tidak terpasang diabaikan.
+         */
+        val CALL_APPS = arrayOf(
+            "com.whatsapp", "com.whatsapp.w4b", "org.telegram.messenger", "org.telegram.messenger.web", "org.thunderdog.challegram",
+            "com.facebook.orca", "com.facebook.mlite", "com.google.android.apps.tachyon", "com.google.android.apps.meetings",
+            "us.zoom.videomeetings", "com.microsoft.teams", "com.skype.raider", "com.discord", "org.thoughtcrime.securesms",
+            "jp.naver.line.android", "com.imo.android.imoim", "com.viber.voip", "com.tencent.mm", "com.google.android.dialer",
+            "com.samsung.android.dialer", "com.android.incallui", "com.instagram.android"
+        )
         private const val CHANNEL_ID = "aegis_vpn_status"
         private const val NOTIF_ID = 42
     }
@@ -119,6 +131,8 @@ class AdBlockVpnService : VpnService() {
         // Aplikasi yang dikecualikan user (mis. bank/streaming yang rewel) tidak lewat tunnel sama sekali.
         val skip = getSharedPreferences("aegis_prefs", MODE_PRIVATE).getStringSet(Prefs.BYPASS, emptySet()) ?: emptySet()
         for (pkg in skip) { try { b.addDisallowedApplication(pkg) } catch (_: Exception) { } }
+        if (getSharedPreferences("aegis_prefs", MODE_PRIVATE).getBoolean(Prefs.CALL_BYPASS, true))
+            for (pkg in CALL_APPS) { try { b.addDisallowedApplication(pkg) } catch (_: Exception) { } }
         val pfd = b.establish() ?: return START_NOT_STICKY
         tun = pfd; running = true
         startForeground(NOTIF_ID, buildNotification())

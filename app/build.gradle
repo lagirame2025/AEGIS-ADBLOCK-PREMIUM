@@ -6,8 +6,8 @@ android {
         applicationId 'com.aegis.adblock'
         minSdk 21
         targetSdk 34
-        versionCode 8
-        versionName '1.7'
+        versionCode 9
+        versionName '1.7.1'
     }
     buildTypes { release { minifyEnabled false } }
     compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }

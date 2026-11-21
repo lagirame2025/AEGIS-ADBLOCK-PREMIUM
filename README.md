@@ -83,3 +83,6 @@ Batasan: DNS tidak bisa memblokir iklan yang satu domain dengan konten (mis. You
 - Deteksi iklan lewat MutationObserver pada pemutar (iklan dilewati seketika, bukan menunggu interval) + interval cadangan 120 ms; kegagalan satu selektor tidak lagi menghentikan loop.
 - Slot iklan di feed/Shorts dibuang lewat JS (tidak bergantung pada `:has()`), selektor `ytm-*` tambahan.
 - Batasan: iklan di **aplikasi YouTube resmi** tidak bisa diblokir DNS (satu domain dengan video). Gunakan "Buka browser anti-iklan" di Aegis.
+
+## v1.7.1 (panggilan WhatsApp macet "Connecting")
+- Aplikasi panggilan (WhatsApp, Telegram, Messenger, Meet, Zoom, Teams, Discord, Signal, Line, dll.) kini **otomatis dikecualikan dari tunnel VPN** (saklar "Kecualikan aplikasi panggilan" di layar utama, bawaan aktif). Panggilan memakai UDP/ICE langsung ke relay dan gagal bila aplikasi memilih antarmuka tunnel. Berlaku setelah proteksi dimatikan lalu dinyalakan lagi. Konsekuensi: aplikasi-aplikasi itu tidak lagi tersaring DNS.
