@@ -12784,7 +12784,13 @@ igo-bokep.bond###GLOBAL-ADS-OVERLAY
 igo.desu.xxx##[href^="https://tinig22.com/"]
 igo.desu.xxx##main div.my-2:has(a[target="_blank"][rel*="nofollow"])
 igo.desu.xxx##uads_300x250
+igorslab.de###extras > #single-sticky + div:has(img)
+igorslab.de##.entry-content > a:has(> img):has(+ aside.ilab-ad-privacy-footer)
 igorslab.de##.herald-sidebar
+igorslab.de##.widget_custom_html:has(> .widget-title + .textwidget:empty)
+igorslab.de##[data-igorslab-trackid]
+igorslab.de##body > div:has(> [data-igorslab-trackid])
+igorslab.de##div[id^="advads_ad_widget-"]
 iheart.com##.provider-stn
 iheartradio.ca##.lightbox-wrapper
 iheartradio.ca##.page-footer
@@ -12900,8 +12906,7 @@ indiatimes.com##.btf_ads
 indiatimes.com##.ecom-widget
 indiatimes.com##.product-cont
 indiatimes.com##.rmfp
-indiatimes.com##div:has(> div[id^="div-gpt-ad-"][id$="-atf"])
-indiatimes.com##div:has(> div[id^="div-gpt-ad-atf-"])
+indiatimes.com##div:has(> div[id^="div-gpt-ad-"][id*="-atf"])
 indiatimes.com##div[data-type="in_view"]:has(> span + div .adWrapperPlaceholder > div[id^="div-gpt-ad-mrec"])
 indiatimes.com##li:has(> .adInv:only-child)
 indiatoday.in##.shopping__widget
