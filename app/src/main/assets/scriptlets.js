@@ -247,13 +247,18 @@
  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',start); else start();
 
  /* YouTube: lewati iklan video yang lolos + singkirkan dialog "ad blocker dilarang".
-    Memakai <video> milik pemutar utama (bukan pratinjau feed) dan memulihkan mute/kecepatan milik pengguna. */
+    Memakai <video> milik pemutar utama (bukan pratinjau feed) dan memulihkan mute/kecepatan milik pengguna.
+    Dipicu cepat lewat MutationObserver pada pemutar (iklan terdeteksi saat kelas 'ad-showing' muncul), plus interval cadangan. */
  if(isYT){
-  var inAd=false,prevMuted=false,prevRate=1;
-  function yt(){
+  var inAd=false,prevMuted=false,prevRate=1,obsP=null;
+  var SKIP='.ytp-ad-skip-button,.ytp-ad-skip-button-modern,.ytp-skip-ad-button,.ytp-ad-skip-button-container button,.ytp-ad-skip-button-slot button,.ytm-skip-ad-button,.videoAdUiSkipButton,button.ytp-ad-skip-button-modern';
+  var YTSEL='.ytp-ad-overlay-close-button,.ytp-ad-overlay-slot .ytp-ad-overlay-close-container';
+  function yt(){ try{ yt0(); }catch(e){} }
+  function yt0(){
    var p=document.querySelector('.html5-video-player');
-   var v=(p&&p.querySelector('video'))||document.querySelector('video');
-   var ad=!!(p&&(p.classList.contains('ad-showing')||p.classList.contains('ad-interrupting')));
+   var v=(p&&p.querySelector('video.html5-main-video'))||(p&&p.querySelector('video'))||document.querySelector('video');
+   var ad=!!(p&&(p.classList.contains('ad-showing')||p.classList.contains('ad-interrupting')||p.querySelector('.ytp-ad-player-overlay,.ytp-ad-player-overlay-layout,.ytp-ad-text')&&p.classList.contains('ad-created')));
+   if(p&&p!==obsP){ obsP=p; try{ new MutationObserver(yt).observe(p,{attributes:true,attributeFilter:['class']}); }catch(e){} }
    if(ad&&v){
     if(!inAd){ inAd=true; prevMuted=v.muted; prevRate=v.playbackRate||1; }
     v.muted=true;
@@ -263,17 +268,24 @@
    } else if(inAd&&v){
     inAd=false; v.muted=prevMuted; try{ v.playbackRate=prevRate; }catch(e){}
    }
-   var b=document.querySelector('.ytp-ad-skip-button,.ytp-ad-skip-button-modern,.ytp-skip-ad-button,.ytp-ad-skip-button-container button,.ytm-skip-ad-button,.videoAdUiSkipButton');
-   if(b) try{ b.click(); }catch(e){}
-   var o=document.querySelector('.ytp-ad-overlay-close-button'); if(o) try{ o.click(); }catch(e){}
-   var e=document.querySelector('ytd-enforcement-message-view-model');
+   var sb=document.querySelectorAll(SKIP);
+   for(var i=0;i<sb.length;i++){ try{ sb[i].click(); }catch(e){} }
+   var o=document.querySelector(YTSEL); if(o) try{ o.click(); }catch(e){}
+   /* iklan di feed/Shorts yang lolos dari CSS (tanpa :has): buang slot beserta pembungkusnya */
+   var slots=document.querySelectorAll('ytm-ad-slot-renderer:not([data-aegis]),ytd-ad-slot-renderer:not([data-aegis]),ytm-promoted-sparkles-web-renderer:not([data-aegis]),ytm-promoted-video-renderer:not([data-aegis]),ytm-in-feed-ad-layout-renderer:not([data-aegis]),ytm-statement-banner-renderer:not([data-aegis]),ytm-brand-video-singleton-renderer:not([data-aegis])');
+   for(var j=0;j<slots.length;j++){
+    var w=slots[j].closest('ytm-rich-item-renderer,ytd-rich-item-renderer,ytm-reel-video-renderer,ytd-reel-video-renderer,ytm-item-section-renderer,ytm-rich-section-renderer,ytd-rich-section-renderer')||slots[j];
+    hide(w); slots[j].setAttribute('data-aegis','1');
+   }
+   var e=document.querySelector('ytd-enforcement-message-view-model,ytm-enforcement-message-view-model');
    if(e){
     var dlg=e.closest('tp-yt-paper-dialog')||e; try{ dlg.remove(); }catch(x){}
     var bd=document.querySelector('tp-yt-iron-overlay-backdrop'); if(bd) try{ bd.remove(); }catch(x){}
     if(v&&v.paused) try{ v.play(); }catch(x){}
    }
   }
-  setInterval(yt,250);
+  setInterval(yt,120);
   document.addEventListener('yt-navigate-finish',yt,true);
+  document.addEventListener('yt-page-data-updated',yt,true);
  }
 })();

@@ -70,3 +70,16 @@ Batasan: DNS tidak bisa memblokir iklan yang satu domain dengan konten (mis. You
 ## Lanjutan v1.6
 - **Selektor kosmetik berisiko disaring di pipeline**: target tunggal yang terlalu luas (`div`, `body`, `#content`, `.container`, ...) dan atribut bernilai pendek (`[class*="ad"]`) dibuang dari `cosmetic.txt`; selektor berkonteks (`.ad-box a`) tetap lolos.
 - **Rilis otomatis**: `git tag v1.6 && git push origin v1.6` membangun APK dan membuat GitHub Release (APK + `SHA256SUMS.txt`). Tag harus sama dengan `versionName`, dan secret `DEBUG_KEYSTORE_BASE64` wajib ada.
+
+## Peningkatan v1.7 (kecepatan & stabilitas, YouTube)
+**Koneksi lebih cepat dan stabil**
+- **Upstream DNS**: DNS bawaan jaringan aktif (ISP/router) kini diutamakan agar CDN (YouTube dll.) memberi server terdekat; Cloudflare, Google, AdGuard, Quad9 jadi cadangan otomatis. Hanya DNS dari jaringan terbaik (tervalidasi, Wi-Fi sebelum seluler) yang dipakai.
+- **Balapan upstream tanpa polling**: satu socket per query dengan receive berbatas waktu (sebelumnya polling 15 ms per socket menambah latensi tiap query). Upstream yang kalah dari hedge tidak lagi dihukum sebagai "gagal" (mencegah gonta-ganti upstream); penalti gagal diperkecil.
+- **Balasan DNS > 1400 byte** diberi tanda TC agar klien beralih ke TCP (sebelumnya paket melebihi MTU dibuang diam-diam, klien menunggu retry ~5 detik).
+- **Tunnel tidak dianggap berkuota** (`setMetered(false)`, Android 10+), jadi aplikasi tidak membatasi kualitas video/unduhan.
+- Pool thread 32 (menyusut sendiri), cache DNS 8000 entri, TTL minimum 30 dtk / maksimum 15 menit.
+
+**YouTube (browser anti-iklan)**
+- Deteksi iklan lewat MutationObserver pada pemutar (iklan dilewati seketika, bukan menunggu interval) + interval cadangan 120 ms; kegagalan satu selektor tidak lagi menghentikan loop.
+- Slot iklan di feed/Shorts dibuang lewat JS (tidak bergantung pada `:has()`), selektor `ytm-*` tambahan.
+- Batasan: iklan di **aplikasi YouTube resmi** tidak bisa diblokir DNS (satu domain dengan video). Gunakan "Buka browser anti-iklan" di Aegis.

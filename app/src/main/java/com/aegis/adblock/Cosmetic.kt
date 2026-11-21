@@ -31,7 +31,12 @@ object Cosmetic {
         "ytd-action-companion-ad-renderer", "ytd-promoted-video-renderer", "ytd-search-pyv-renderer",
         "ytm-promoted-sparkles-text-search-renderer", "ytm-companion-slot", "ytd-ad-inline-playback-meta-block",
         "ytm-rich-item-renderer:has(ytm-ad-slot-renderer)", "ytd-rich-item-renderer:has(ytd-ad-slot-renderer)",
-        "ytd-reel-video-renderer:has(ytd-ad-slot-renderer)", "ytm-reel-video-renderer:has(ytm-ad-slot-renderer)"
+        "ytd-reel-video-renderer:has(ytd-ad-slot-renderer)", "ytm-reel-video-renderer:has(ytm-ad-slot-renderer)",
+        "ytm-in-feed-ad-layout-renderer", "ytm-brand-video-singleton-renderer", "ytm-statement-banner-renderer",
+        "ytm-banner-promo-renderer", "ytm-display-ad-renderer", ".ytp-ad-skip-button-slot:empty", ".ytp-ad-message-container",
+        ".ytp-ad-persistent-progress-bar-container", ".ytp-suggested-action-badge-expanded-content-container ~ .ytp-ad-badge",
+        "ytm-rich-section-renderer:has(ytm-ad-slot-renderer)", "ytm-item-section-renderer:has(ytm-ad-slot-renderer)",
+        "ytm-companion-ad-renderer", "ytd-engagement-panel-section-list-renderer[target-id=\"engagement-panel-ads\"]"
     )
 
     private fun ok(sel: String) = sel.isNotEmpty() && sel.length < 200 &&

@@ -64,27 +64,34 @@ class AdBlockVpnService : VpnService() {
     private var tun: ParcelFileDescriptor? = null
     // Antrian dibatasi: saat banjir query, yang paling lama dibuang (klien toh sudah menyerah/mengulang),
     // sehingga memori tidak membengkak dan query baru tetap dilayani.
-    private val pool = ThreadPoolExecutor(16, 16, 0L, TimeUnit.MILLISECONDS, ArrayBlockingQueue<Runnable>(512),
-        ThreadPoolExecutor.DiscardOldestPolicy())
+    private val pool = ThreadPoolExecutor(32, 32, 30L, TimeUnit.SECONDS, ArrayBlockingQueue<Runnable>(512),
+        ThreadPoolExecutor.DiscardOldestPolicy()).apply { allowCoreThreadTimeOut(true) }
 
     /** Satu upstream DNS dengan skor kesehatan: latensi (EWMA) + bias preferensi + penalti kegagalan beruntun. */
-    private class Upstream(val host: String, val bias: Double) {
+    private class Upstream(val host: String, val bias: Double, e0: Double = 80.0) {
         val addr: InetAddress = InetAddress.getByName(host) // literal IP, tidak memicu lookup
-        @Volatile var ewma = 80.0
+        @Volatile var ewma = e0
         @Volatile var fails = 0
         @Volatile var lastFail = 0L
         fun score(now: Long): Double {
-            if (fails > 0 && now - lastFail > 60_000L) fails = 0 // beri kesempatan lagi setelah 1 menit
-            return ewma + bias + fails * 1500.0
+            if (fails > 0 && now - lastFail > 30_000L) fails = 0 // beri kesempatan lagi setelah 30 detik
+            return ewma + bias + fails * 400.0
         }
         fun ok(ms: Long) { ewma = ewma * 0.8 + ms * 0.2; fails = 0 }
+        /** Kalah dari hedge: cukup naikkan latensi rata-rata, jangan dihukum sebagai gagal (mencegah upstream gonta-ganti). */
+        fun slow(ms: Long) { ewma = ewma * 0.8 + ms * 0.2 }
         fun fail() { fails = minOf(fails + 1, 5); lastFail = SystemClock.elapsedRealtime() }
     }
 
-    // AdGuard DNS diutamakan (lapisan filter tambahan), Cloudflare & Quad9 cadangan; DNS bawaan jaringan (operator/
-    // router) terakhir, berguna di jaringan yang memblokir DNS publik.
-    private val base = listOf(Upstream("94.140.14.14", 0.0), Upstream("1.1.1.1", 25.0), Upstream("9.9.9.9", 40.0))
+    // DNS bawaan jaringan aktif (ISP/router) diutamakan: paling dekat dan memberi CDN (YouTube, dll.) lokasi yang benar,
+    // jadi video & halaman lebih cepat. Filter iklan sudah dikerjakan blocklist sendiri. Cloudflare/Google/AdGuard/Quad9
+    // sebagai cadangan, otomatis dipilih ulang bila DNS ISP lambat atau mati (skor latensi EWMA).
+    private val base = listOf(
+        Upstream("1.1.1.1", 10.0, 70.0), Upstream("8.8.8.8", 15.0, 70.0),
+        Upstream("94.140.14.14", 60.0), Upstream("9.9.9.9", 80.0)
+    )
     private val sysUps = ConcurrentHashMap<Network, List<Upstream>>()
+    private val sysRank = ConcurrentHashMap<Network, Int>()
     private var netCb: ConnectivityManager.NetworkCallback? = null
 
     private val tcpDns = TcpDns({ q -> answer(q, true) { null } }, { r -> pool.execute(r) })
@@ -105,6 +112,9 @@ class AdBlockVpnService : VpnService() {
         Blocklist.blockDoh = advanced
         val b = Builder().setSession("Aegis AdBlock").addAddress("10.111.0.2", 32)
             .addDnsServer(FAKE_DNS).addRoute(FAKE_DNS, 32).setMtu(1500)
+        // Tunnel hanya membawa DNS: jangan sampai aplikasi menganggap koneksi berkuota (membatasi kualitas video/unduhan).
+        if (Build.VERSION.SDK_INT >= 29) { try { b.setMetered(false) } catch (_: Throwable) { } }
+        try { b.setBlocking(true) } catch (_: Throwable) { }
         if (advanced) for (ip in HIJACK) { try { b.addRoute(ip, 32) } catch (_: Exception) { } }
         // Aplikasi yang dikecualikan user (mis. bank/streaming yang rewel) tidak lewat tunnel sama sekali.
         val skip = getSharedPreferences("aegis_prefs", MODE_PRIVATE).getStringSet(Prefs.BYPASS, emptySet()) ?: emptySet()
@@ -185,7 +195,9 @@ class AdBlockVpnService : VpnService() {
             val udpLen = ((pkt[ihl + 4].toInt() and 0xFF) shl 8) or (pkt[ihl + 5].toInt() and 0xFF)
             val endPos = if (udpLen >= 8) minOf(pkt.size, ihl + udpLen) else pkt.size
             val dns = pkt.copyOfRange(ihl + 8, endPos)
-            val reply = answer(dns, false) { Attribution.pkgFor(this, pkt, ihl, 17) } ?: return
+            val reply0 = answer(dns, false) { Attribution.pkgFor(this, pkt, ihl, 17) } ?: return
+            // Paket > MTU dibuang diam-diam oleh tunnel (klien menunggu retry ~5 dtk). Beri tanda TC agar klien beralih ke TCP.
+            val reply = if (reply0.size > 1400) Dns.truncatedReply(reply0, Dns.question(dns)?.second ?: 12) else reply0
             val resp = Dns.wrapUdp(pkt, ihl, reply)
             synchronized(out) { out.write(resp) }
         } catch (_: Exception) { }
@@ -265,7 +277,7 @@ class AdBlockVpnService : VpnService() {
         }
         // Balasan besar dari TCP tidak di-cache: klien UDP tanpa EDNS tidak bisa menerimanya.
         if (!a.truncated && !(viaTcp && r.size > 512)) {
-            if (a.rcode == 0 && a.answers > 0) DnsCache.put(key, r, a.minTtl.coerceIn(10L, 600L), STALE_SEC)
+            if (a.rcode == 0 && a.answers > 0) DnsCache.put(key, r, a.minTtl.coerceIn(30L, 900L), STALE_SEC)
             // Negative caching: NXDOMAIN / NODATA (sering untuk AAAA & HTTPS) tidak perlu ditanyakan ulang.
             else if (a.rcode == 3 || (a.rcode == 0 && a.answers == 0))
                 DnsCache.put(key, r, (if (a.negTtl > 0) a.negTtl else 30L).coerceIn(10L, 300L))
@@ -295,58 +307,68 @@ class AdBlockVpnService : VpnService() {
 
     private fun pickUpstreams(): List<Upstream> {
         val now = SystemClock.elapsedRealtime()
-        val sys = sysUps.values.flatten().filter { s -> base.none { it.host == s.host } }.distinctBy { it.host }
+        // Hanya DNS dari jaringan terbaik saat ini (tervalidasi, Wi-Fi/Ethernet sebelum seluler); DNS jaringan lain
+        // (mis. operator seluler saat di Wi-Fi) sering tidak terjangkau dan hanya membuang waktu.
+        val best = sysUps.keys.minByOrNull { sysRank[it] ?: 20 }
+        val sys = (if (best == null) emptyList() else (sysUps[best] ?: emptyList()))
+            .filter { s -> base.none { it.host == s.host } }.distinctBy { it.host }
         return (base + sys).sortedBy { it.score(now) }.take(4)
     }
 
     /**
      * Balapan upstream dengan hedging: kirim ke yang tercepat, bila belum menjawab dalam ~1,6x latensi biasanya
-     * kirim juga ke berikutnya, ambil jawaban pertama yang valid. Latensi & kegagalan dicatat untuk pemilihan
-     * berikutnya, jadi satu upstream yang lambat/mati tidak membuat tiap query menunggu timeout.
+     * kirim juga ke berikutnya (dari socket yang sama), ambil jawaban pertama yang valid. Menunggu dengan receive
+     * berbatas waktu (tanpa polling), satu socket & satu protect() per query.
      */
     private fun race(dns: ByteArray, ups: List<Upstream>): ByteArray? {
         if (ups.isEmpty()) return null
-        val socks = ArrayList<DatagramSocket>(); val used = ArrayList<Upstream>(); val starts = ArrayList<Long>()
+        val sk = DatagramSocket()
+        val used = ArrayList<Upstream>(); val starts = ArrayList<Long>()
         val buf = ByteArray(4096); val pkt = DatagramPacket(buf, buf.size)
         var launched = 0
-        fun launch() {
+        fun launch(): Boolean {
             val u = ups[launched++]
-            val sk = DatagramSocket()
-            try {
-                protect(sk); sk.soTimeout = 15
+            return try {
                 sk.send(DatagramPacket(dns, dns.size, u.addr, 53))
-                socks.add(sk); used.add(u); starts.add(SystemClock.elapsedRealtime())
-            } catch (_: Exception) { u.fail(); try { sk.close() } catch (_: Exception) { } }
+                used.add(u); starts.add(SystemClock.elapsedRealtime()); true
+            } catch (_: Exception) { u.fail(); false }
         }
-        val t0 = SystemClock.elapsedRealtime()
         try {
+            protect(sk)
+            val t0 = SystemClock.elapsedRealtime()
+            val deadline = t0 + 3000L
             launch()
             var hedgeAt = t0 + (ups[0].ewma * 1.6).toLong().coerceIn(120L, 600L)
-            val deadline = t0 + 3000L
             while (true) {
                 val now = SystemClock.elapsedRealtime()
                 if (now >= deadline) break
-                if ((now >= hedgeAt || socks.isEmpty()) && launched < ups.size) {
-                    launch(); hedgeAt = now + 400L; if (socks.size > 1) hedged.incrementAndGet()
+                if ((now >= hedgeAt || used.isEmpty()) && launched < ups.size) {
+                    if (launch() && used.size > 1) hedged.incrementAndGet()
+                    hedgeAt = now + 400L
+                    continue
                 }
-                if (socks.isEmpty()) { if (launched >= ups.size) break else continue }
-                for (i in socks.indices) {
-                    try {
-                        pkt.length = buf.size
-                        socks[i].receive(pkt)
-                        val out = buf.copyOf(pkt.length)
-                        // Abaikan balasan dengan ID tidak cocok (anti-spoof sederhana)
-                        if (out.size >= 12 && out[0] == dns[0] && out[1] == dns[1]) {
-                            used[i].ok(SystemClock.elapsedRealtime() - starts[i])
-                            if (i > 0) used[0].fail() // yang pertama kalah dari hedge: turunkan skornya
-                            return out
+                if (used.isEmpty()) break
+                val next = if (launched < ups.size) minOf(hedgeAt, deadline) else deadline
+                sk.soTimeout = (next - now).coerceAtLeast(1L).toInt()
+                try {
+                    pkt.length = buf.size
+                    sk.receive(pkt)
+                    val n = pkt.length
+                    // Abaikan balasan dengan ID tidak cocok / bukan dari upstream yang kita tanya (anti-spoof sederhana)
+                    if (n >= 12 && buf[0] == dns[0] && buf[1] == dns[1]) {
+                        val i = used.indexOfFirst { it.addr == pkt.address }
+                        if (i >= 0) {
+                            val done = SystemClock.elapsedRealtime()
+                            used[i].ok(done - starts[i])
+                            if (i > 0) used[0].slow(done - starts[0]) // yang pertama kalah dari hedge: naikkan latensinya
+                            return buf.copyOf(n)
                         }
-                    } catch (_: SocketTimeoutException) { }
-                }
+                    }
+                } catch (_: SocketTimeoutException) { }
             }
             for (u in used) u.fail()
             return null
-        } finally { for (sk in socks) try { sk.close() } catch (_: Exception) { } }
+        } finally { try { sk.close() } catch (_: Exception) { } }
     }
 
     /** Kumpulkan DNS bawaan jaringan fisik (non-VPN) sebagai upstream cadangan terakhir. */
@@ -358,12 +380,18 @@ class AdBlockVpnService : VpnService() {
             val cb = object : ConnectivityManager.NetworkCallback() {
                 override fun onLinkPropertiesChanged(n: Network, lp: android.net.LinkProperties) {
                     val l = lp.dnsServers.filterIsInstance<Inet4Address>().mapNotNull { a ->
-                        try { Upstream(a.hostAddress ?: return@mapNotNull null, 200.0) } catch (_: Exception) { null }
+                        try { Upstream(a.hostAddress ?: return@mapNotNull null, 0.0, 60.0) } catch (_: Exception) { null }
                     }
                     sysUps[n] = l
                     DnsCache.clear() // jaringan berganti: jawaban lama (mis. CDN regional) bisa tidak relevan
                 }
-                override fun onLost(n: Network) { sysUps.remove(n) }
+                override fun onCapabilitiesChanged(n: Network, c: NetworkCapabilities) {
+                    var r = if (c.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)) 0 else 10
+                    r += if (c.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) || c.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) 0
+                         else if (c.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) 1 else 2
+                    sysRank[n] = r
+                }
+                override fun onLost(n: Network) { sysUps.remove(n); sysRank.remove(n) }
             }
             cm.registerNetworkCallback(req, cb); netCb = cb
         } catch (_: Exception) { }
@@ -371,7 +399,7 @@ class AdBlockVpnService : VpnService() {
 
     private fun unwatchSystemDns() {
         try { netCb?.let { (getSystemService(android.content.Context.CONNECTIVITY_SERVICE) as ConnectivityManager).unregisterNetworkCallback(it) } } catch (_: Exception) { }
-        netCb = null; sysUps.clear()
+        netCb = null; sysUps.clear(); sysRank.clear()
     }
 
     private fun stop() {

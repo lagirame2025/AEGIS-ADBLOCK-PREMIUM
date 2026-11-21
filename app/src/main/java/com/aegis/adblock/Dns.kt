@@ -115,6 +115,14 @@ object Dns {
         return h
     }
 
+    /** Balasan terpotong (TC=1, hanya question) agar klien mengulang lewat TCP bila balasan melebihi MTU tunnel. */
+    fun truncatedReply(r: ByteArray, end: Int): ByteArray {
+        val h = r.copyOf(minOf(maxOf(end, 12), r.size))
+        h[2] = (h[2].toInt() or 0x82).toByte() // QR + TC
+        for (k in 6..11) h[k] = 0
+        return h
+    }
+
     /** SERVFAIL cepat bila semua upstream gagal, supaya aplikasi tidak menunggu timeout. */
     fun failReply(q: ByteArray, end: Int): ByteArray {
         val h = q.copyOf(end)
@@ -200,7 +208,7 @@ object Dns {
 }
 
 /**
- * Cache balasan DNS (LRU 4000 entri). Tiap entri punya masa segar (TTL) dan masa basi ([staleUntil]):
+ * Cache balasan DNS (LRU 8000 entri). Tiap entri punya masa segar (TTL) dan masa basi ([staleUntil]):
  * entri basi tetap boleh disajikan sementara di-refresh di latar belakang (serve-stale, RFC 8767), jadi
  * halaman tetap cepat dan jaringan yang putus-nyambung tidak langsung memutus resolusi nama.
  */
@@ -211,7 +219,7 @@ object DnsCache {
     }
 
     private val map = object : LinkedHashMap<String, Entry>(256, 0.75f, true) {
-        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, Entry>?): Boolean = size > 4000
+        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, Entry>?): Boolean = size > 8000
     }
 
     @Synchronized fun get(key: String): Hit? {
