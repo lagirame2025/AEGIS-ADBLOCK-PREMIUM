@@ -1,7 +1,12 @@
 package com.aegis.adblock
 
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.net.VpnService
 import android.content.Intent
+import android.os.Build
 import android.os.ParcelFileDescriptor
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -11,12 +16,24 @@ import java.net.InetAddress
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
 
+/**
+ * DNS-filtering VPN service. Runs only while the user has it switched on:
+ * - User can stop it anytime from this notification, from the app, or from
+ *   Android Settings > Apps > Aegis AdBlock > Force stop / Settings > VPN.
+ * - Android calls onRevoke() the moment the user turns off the VPN from
+ *   system Settings, and we stop cleanly there.
+ * - It does NOT relaunch itself after being stopped by the user. It only
+ *   resumes after a device reboot, and only if the user has opted in via
+ *   the "autostart after restart" toggle in the app (see BootReceiver).
+ */
 class AdBlockVpnService : VpnService() {
     companion object {
         @Volatile var running = false
         val blockedCount = AtomicInteger(); val totalCount = AtomicInteger()
         const val FAKE_DNS = "10.111.0.1"
         const val UPSTREAM = "1.1.1.1"
+        private const val CHANNEL_ID = "aegis_vpn_status"
+        private const val NOTIF_ID = 42
     }
     private var tun: ParcelFileDescriptor? = null
     private val pool = Executors.newFixedThreadPool(8)
@@ -28,8 +45,39 @@ class AdBlockVpnService : VpnService() {
         val pfd = Builder().setSession("Aegis AdBlock").addAddress("10.111.0.2", 32)
             .addDnsServer(FAKE_DNS).addRoute(FAKE_DNS, 32).setMtu(1500).establish() ?: return START_NOT_STICKY
         tun = pfd; running = true
+        startForeground(NOTIF_ID, buildNotification())
         Thread { loop(pfd) }.start()
         return START_STICKY
+    }
+
+    /** Ongoing, dismiss-proof-by-swipe notification — but it carries its own
+     * "Matikan" action so the user is always one tap away from stopping the
+     * service, exactly as Android's foreground-service guidelines require. */
+    private fun buildNotification(): Notification {
+        val nm = getSystemService(NotificationManager::class.java)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val ch = NotificationChannel(CHANNEL_ID, "Status proteksi Aegis", NotificationManager.IMPORTANCE_LOW)
+            ch.description = "Menampilkan status aktif/mati dari proteksi iklan Aegis"
+            nm.createNotificationChannel(ch)
+        }
+        val stopIntent = Intent(this, AdBlockVpnService::class.java).setAction("STOP")
+        val stopPending = PendingIntent.getService(
+            this, 0, stopIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        val openIntent = Intent(this, MainActivity::class.java)
+        val openPending = PendingIntent.getActivity(
+            this, 0, openIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        return Notification.Builder(this, CHANNEL_ID)
+            .setContentTitle("Aegis AdBlock aktif")
+            .setContentText("Proteksi DNS berjalan. Ketuk untuk membuka, atau matikan di bawah.")
+            .setSmallIcon(android.R.drawable.ic_lock_lock)
+            .setContentIntent(openPending)
+            .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Matikan", stopPending)
+            .setOngoing(true)
+            .build()
     }
 
     private fun loop(pfd: ParcelFileDescriptor) {
@@ -67,7 +115,17 @@ class AdBlockVpnService : VpnService() {
         } catch (_: Exception) { }
     }
 
-    private fun stop() { running = false; tun?.close(); tun = null; stopSelf() }
+    private fun stop() {
+        running = false; tun?.close(); tun = null
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            stopForeground(STOP_FOREGROUND_REMOVE)
+        } else {
+            @Suppress("DEPRECATION") stopForeground(true)
+        }
+        stopSelf()
+    }
+    // Called by Android the instant the user revokes VPN permission from
+    // system Settings. We must stop immediately here — never resist this.
     override fun onRevoke() { stop() }
     override fun onDestroy() { running = false; tun?.close(); super.onDestroy() }
 }
