@@ -8,7 +8,10 @@
 
  /* util: injeksi CSS lewat constructable stylesheet (lolos CSP style-src), fallback ke <style> */
  var sheets={};
+ var OFFKEY='aegis_cosmetic_off';
+ try{ var t0=+localStorage.getItem(OFFKEY); if(t0&&Date.now()-t0<6048e5) window.__aegisOff=1; }catch(e){}  /* 7 hari */
  window.__aegisCss=function(id,css){
+  if(window.__aegisOff) return;
   try{
    var sh=sheets[id]||(sheets[id]=new CSSStyleSheet()); sh.replaceSync(css);
    var cur=document.adoptedStyleSheets||[]; if(cur.indexOf(sh)<0) document.adoptedStyleSheets=cur.concat([sh]);
@@ -135,6 +138,67 @@
   }
  }catch(e){}
 
+ /* privasi: buang parameter pelacak (utm_*, fbclid, gclid, ...) dari URL halaman dan dari tautan yang diklik */
+ var TRK=/^(utm_[a-z0-9_]+|fbclid|gclid|dclid|gbraid|wbraid|msclkid|yclid|igshid|mc_eid|mc_cid|_hsenc|_hsmi|vero_id|ttclid|twclid)$/i;
+ function cleanUrl(u){
+  try{
+   var x=new URL(u,location.href); if(x.protocol!=='http:'&&x.protocol!=='https:') return null;
+   var ks=[]; x.searchParams.forEach(function(v,k){ if(TRK.test(k)) ks.push(k); });
+   if(!ks.length) return null;
+   for(var i=0;i<ks.length;i++) x.searchParams.delete(ks[i]);
+   return x.href;
+  }catch(e){ return null; }
+ }
+ if(!isYT){
+  try{ var cu=cleanUrl(location.href); if(cu&&new URL(cu).origin===location.origin) history.replaceState(history.state,'',cu); }catch(e){}
+  document.addEventListener('click',function(ev){
+   try{
+    var a=ev.target&&ev.target.closest&&ev.target.closest('a[href]'); if(!a) return;
+    var c=cleanUrl(a.href); if(c) a.href=c;
+   }catch(e){}
+  },true);
+ }
+
+ /* banner persetujuan cookie: disembunyikan; kunci scroll yang ditinggalkannya dibuka */
+ var CMP=['#onetrust-consent-sdk','#onetrust-banner-sdk','.onetrust-pc-dark-filter','#CybotCookiebotDialog','#CybotCookiebotDialogBodyUnderlay',
+  '.cc-window','.cc-banner','#cookie-law-info-bar','#cookiebanner','.cookie-banner','.cookie-notice','#cookie-notice','.cookie-consent',
+  '#cookieConsent','#truste-consent-track','.truste_overlay','#didomi-host','.fc-consent-root','.qc-cmp2-container','#usercentrics-root',
+  '[id^="sp_message_container_"]','.sp_veil','#cmpbox','#cmpwrapper','.osano-cm-window','#hs-eu-cookie-confirmation'];
+ try{ window.__aegisCss('cmp',CMP.map(function(x){return x+'{display:none!important}';}).join('\n')); }catch(e){}
+ function unlockScroll(){
+  try{
+   var seen=false; for(var i=0;i<CMP.length&&!seen;i++){ if(document.querySelector(CMP[i])) seen=true; }
+   if(!seen) return;
+   [document.documentElement,document.body].forEach(function(n){
+    if(n&&getComputedStyle(n).overflow==='hidden') n.style.setProperty('overflow','auto','important');
+   });
+  }catch(e){}
+ }
+
+ /* penjaga kerusakan: bila filter kosmetik membuang >65% teks halaman, filter dimatikan untuk situs ini (7 hari) */
+ var guarded=0;
+ function setCss(on){
+  try{
+   var mine=[]; for(var k in sheets) mine.push(sheets[k]);
+   var rest=(document.adoptedStyleSheets||[]).filter(function(x){ return mine.indexOf(x)<0; });
+   document.adoptedStyleSheets=on?rest.concat(mine):rest;
+  }catch(e){}
+  try{ var st=document.querySelectorAll('style[id^="aegis-"]'); for(var i=0;i<st.length;i++) st[i].disabled=!on; }catch(e){}
+ }
+ function visLen(){ return document.body?(document.body.innerText||'').length:0; }
+ function guard(){
+  try{
+   if(isYT||window.__aegisOff||window.top!==window||!document.body||guarded>=2) return;
+   var on=visLen(); if(on<0) return;
+   setCss(false); var off=visLen(); setCss(true);
+   if(off>=800&&on<off*0.35){
+    guarded=9; window.__aegisOff=1; setCss(false);
+    try{ localStorage.setItem(OFFKEY,String(Date.now())); }catch(e){}
+    try{ console.warn('[Aegis] filter kosmetik dimatikan di situs ini: terlalu banyak isi halaman tersembunyi'); }catch(e){}
+   } else guarded++;
+  }catch(e){}
+ }
+
  /* heuristik DOM: iframe/elemen iklan yang lolos dari daftar, dan tembok "matikan adblock" */
  var SIZES={'300x250':1,'728x90':1,'320x50':1,'300x600':1,'160x600':1,'970x250':1,'336x280':1,'320x100':1,'468x60':1,'970x90':1,'120x600':1,'300x50':1};
  var ADHOST=/(doubleclick|googlesyndication|googleadservices|adservice\.|adnxs|taboola|outbrain|criteo|amazon-adsystem|adsterra|propeller|popads|exoclick|rubiconproject|pubmatic|openx\.net|smartadserver|teads\.tv|mgid\.com|revcontent|adsrvr|casalemedia|adform\.net|juicyads|clickadu|hilltopads)/i;
@@ -173,9 +237,9 @@
   }
  }
  var tm=0,tries=0;
- function sched(){ if(tm) return; tm=setTimeout(function(){ tm=0; try{ scanAds(); if(tries++<40) scanWalls(); }catch(e){} },600); }
+ function sched(){ if(tm) return; tm=setTimeout(function(){ tm=0; try{ scanAds(); if(tries++<40){ scanWalls(); unlockScroll(); } }catch(e){} },600); }
  function start(){
-  sched();
+  sched(); setTimeout(guard,1500); setTimeout(guard,5000);
   try{
    new MutationObserver(sched).observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}

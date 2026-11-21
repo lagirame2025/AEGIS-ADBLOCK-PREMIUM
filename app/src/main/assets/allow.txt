@@ -5,3 +5,12 @@ githubusercontent.com
 whatsapp.net
 ads.google.com
 msftconnecttest.com
+captive.apple.com
+detectportal.firefox.com
+msftncsi.com
+clients3.google.com
+time.android.com
+nmcheck.gnome.org
+connectivity-check.ubuntu.com
+connectivitycheck.platform.hicloud.com
+connect.rom.miui.com

@@ -52,3 +52,21 @@ Batasan: DNS tidak bisa memblokir iklan yang satu domain dengan konten (mis. You
   `keytool -genkeypair -v -keystore debug.keystore -storepass android -keypass android -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"`
   lalu `base64 -w0 debug.keystore` (di macOS: `base64 -i debug.keystore`) dan simpan hasilnya di *Settings > Secrets and variables > Actions* dengan nama `DEBUG_KEYSTORE_BASE64`. Simpan file keystore-nya; pemasangan pertama dengan kunci ini mengharuskan copot dulu versi lama.
 - **Update blocklist**: antrean tunggal (`concurrency`), push dengan `pull --rebase` + 3x coba ulang, tidak gagal bila `cosmetic.txt` belum ada; pipeline mencoba ulang unduhan sumber 3x dan tidak menimpa `cosmetic.txt` bila menyusut >30%.
+
+## Peningkatan v1.6 (logika pintar)
+**Browser (scriptlets.js)**
+- **Penjaga kerusakan kosmetik**: 1,5 dan 5 detik setelah halaman dimuat, teks yang terlihat dibandingkan dengan/ tanpa filter. Bila filter membuang >65% isi halaman (halaman >=800 karakter), filter dimatikan untuk situs itu selama 7 hari (tersimpan di `localStorage` situs). Tidak berlaku di YouTube dan iframe.
+- **Pembersih parameter pelacak**: `utm_*`, `fbclid`, `gclid`, `msclkid`, dst. dibuang dari URL halaman dan dari tautan yang diklik (kecuali di YouTube).
+- **Banner cookie** (OneTrust, Cookiebot, Didomi, Sourcepoint, dll.) disembunyikan dan kunci scroll yang ditinggalkannya dibuka.
+
+**Pipeline**
+- **Daftar "tidak boleh diblokir"** (google.com, youtube.com, whatsapp.net, bank & e-commerce Indonesia, ...): entri persis ini dibuang bila sumber upstream salah/diracuni.
+- **Pengaman per-sumber**: bila satu sumber anjlok >50% dari hitungan sukses terakhirnya (`pipeline/stats.json`), run dibatalkan dengan pesan jelas. Bila penyusutan sah, jalankan manual dengan `force=true`.
+- Domain cek konektivitas/captive portal (Apple, Firefox, Microsoft, Android, Xiaomi, dll.) masuk allowlist agar login Wi-Fi & ikon "tanpa internet" tidak rusak.
+- Tes unit offline (`pipeline/test_build_blocklist.py`) dijalankan sebelum pipeline dan sebelum build APK, bersama `node --check` untuk scriptlet.
+
+**Workflow**: action dinaikkan ke checkout v7, setup-java v6, setup-gradle v6 (`cache-provider: basic`), upload-artifact v7; Dependabot mingguan untuk action & Gradle.
+
+## Lanjutan v1.6
+- **Selektor kosmetik berisiko disaring di pipeline**: target tunggal yang terlalu luas (`div`, `body`, `#content`, `.container`, ...) dan atribut bernilai pendek (`[class*="ad"]`) dibuang dari `cosmetic.txt`; selektor berkonteks (`.ad-box a`) tetap lolos.
+- **Rilis otomatis**: `git tag v1.6 && git push origin v1.6` membangun APK dan membuat GitHub Release (APK + `SHA256SUMS.txt`). Tag harus sama dengan `versionName`, dan secret `DEBUG_KEYSTORE_BASE64` wajib ada.
