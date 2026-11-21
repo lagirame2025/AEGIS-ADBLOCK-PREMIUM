@@ -4,3 +4,6 @@ gstatic.com
 github.com
 githubusercontent.com
 whatsapp.net
+whatsapp.com
+ads.google.com
+msftconnecttest.com

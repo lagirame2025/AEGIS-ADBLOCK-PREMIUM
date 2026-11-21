@@ -1,3 +1,6 @@
 https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
 https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt
 https://pgl.yoyo.org/adservers/serverlist.php?hostformat=hosts&showintro=0&mimetype=plaintext
+https://adaway.org/hosts.txt
+https://raw.githubusercontent.com/hagezi/dns-blocklists/main/domains/pro.txt
+https://raw.githubusercontent.com/hagezi/dns-blocklists/main/domains/popupads.txt

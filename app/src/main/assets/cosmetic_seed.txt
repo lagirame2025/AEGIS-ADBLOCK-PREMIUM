@@ -1,12 +1,39 @@
-# selektor generik (seed)
+! selektor generik (seed). Baris diawali "!" atau "# " = komentar.
+! Format situs-spesifik (dari pipeline): situs.com,lain.id##selektor
 .adsbygoogle
 ins.adsbygoogle
 .ad-banner
 .ad-slot
+.ad-unit
+.ad-box
+.ad-wrapper
+.ad-placeholder
+.ad-sticky
+.sticky-ad
+.floating-ad
+.popup-ad
+.interstitial-ad
 .advert
 .advertisement
+.advertising
+.iklan
+.iklan-banner
+.banner-iklan
+[class^="iklan-"]
+[id^="iklan-"]
 [id^="google_ads"]
 [id^="div-gpt-ad"]
+[id^="aswift_"]
+[data-ad-slot]
+[data-ad-client]
+[data-ad-unit]
+[data-google-query-id]
 [class*="sponsored-ad"]
+[aria-label="Advertisement"]
+[aria-label="Iklan"]
 iframe[src*="doubleclick.net"]
 iframe[src*="googlesyndication"]
+iframe[src*="adservice"]
+a[href*="://ad.doubleclick.net"]
+a[href*="adsterra"]
+a[href*="popads"]

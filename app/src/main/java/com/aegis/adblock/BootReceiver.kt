@@ -23,4 +23,7 @@ class BootReceiver : BroadcastReceiver() {
 
 object Prefs {
     const val AUTOSTART = "autostart_after_reboot"
+    const val STRICT = "strict_mode"
+    const val BYPASS = "bypass_apps"
+    const val AUTO = "auto_allow"
 }

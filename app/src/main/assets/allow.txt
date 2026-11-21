@@ -2,3 +2,6 @@ googleapis.com
 gstatic.com
 github.com
 githubusercontent.com
+whatsapp.net
+ads.google.com
+msftconnecttest.com

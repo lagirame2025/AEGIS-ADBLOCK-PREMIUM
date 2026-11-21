@@ -1,1 +1,2 @@
 https://easylist.to/easylist/easylist.txt
+https://raw.githubusercontent.com/ABPindo/indonesianadblockrules/master/subscriptions/abpindo.txt
