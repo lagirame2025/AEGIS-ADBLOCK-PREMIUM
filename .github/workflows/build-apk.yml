@@ -1,0 +1,48 @@
+name: Build APK
+on:
+  push:
+    paths-ignore: ['blocklist.txt', 'cosmetic.txt', 'pipeline/**', '**.md']
+  workflow_dispatch:
+permissions: {contents: read}
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      # Gagal cepat (detik) sebelum Gradle (menit): sintaks scriptlet browser + tes pipeline.
+      - name: Cek cepat
+        run: |
+          node --check app/src/main/assets/scriptlets.js
+          python3 -m unittest discover -s pipeline -v
+      - uses: actions/setup-java@v6
+        with: {distribution: temurin, java-version: 17}
+      - uses: gradle/actions/setup-gradle@v6
+        with:
+          gradle-version: "8.7"
+          cache-provider: basic      # cache open-source (actions/cache); 'enhanced' = komponen berlisensi terpisah
+      # Tanda tangan tetap: tanpa ini keystore debug dibuat acak di tiap runner, sehingga APK build baru
+      # tidak bisa dipasang menimpa build lama ("Aplikasi tidak terpasang"). Lihat README untuk cara membuat secret.
+      - name: Pakai keystore debug tetap (opsional)
+        env:
+          KS: ${{ secrets.DEBUG_KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$KS" ]; then
+            mkdir -p ~/.android
+            echo "$KS" | base64 -d > ~/.android/debug.keystore
+            keytool -list -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey >/dev/null \
+              || { echo "::error::DEBUG_KEYSTORE_BASE64 tidak valid (alias androiddebugkey / password android)"; exit 1; }
+            echo "Keystore tetap dipakai."
+          else
+            echo "::warning::DEBUG_KEYSTORE_BASE64 belum diisi: tanda tangan APK berubah tiap build, update-over-install bisa gagal."
+          fi
+      - run: gradle :app:assembleDebug --stacktrace
+      - uses: actions/upload-artifact@v7
+        with:
+          name: aegis-adblock-debug
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 30
