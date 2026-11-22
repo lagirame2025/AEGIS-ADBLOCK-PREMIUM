@@ -1,0 +1,41 @@
+name: Update blocklist
+on:
+  schedule: [{cron: "17 */6 * * *"}]   # menit 17: hindari antrean padat di awal jam
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Abaikan pengaman 'sumber anjlok' (pakai hanya bila penyusutan memang sah)"
+        type: boolean
+        default: false
+permissions: {contents: write}
+concurrency:
+  group: update-blocklist
+  cancel-in-progress: false
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - name: Tes pipeline
+        run: python3 -m unittest discover -s pipeline -v
+      - name: Bangun blocklist & cosmetic
+        env:
+          FORCE: ${{ inputs.force && '1' || '0' }}
+        run: python3 pipeline/build_blocklist.py
+      - name: Commit & push bila ada perubahan
+        run: |
+          set -euo pipefail
+          git config user.name "blocklist-bot"
+          git config user.email "bot@users.noreply.github.com"
+          for f in blocklist.txt cosmetic.txt pipeline/stats.json; do
+            if [ -f "$f" ]; then git add "$f"; fi
+          done
+          if git diff --cached --quiet; then echo "Tidak ada perubahan."; exit 0; fi
+          git commit -m "Update blocklist"
+          for i in 1 2 3; do
+            if git pull --rebase origin "$GITHUB_REF_NAME" && git push origin "HEAD:$GITHUB_REF_NAME"; then exit 0; fi
+            git rebase --abort 2>/dev/null || true
+            sleep $((i * 5))
+          done
+          echo "::error::Gagal push setelah 3 percobaan"; exit 1
