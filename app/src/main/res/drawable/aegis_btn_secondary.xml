@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="@color/aegis_ripple">
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="28dp" />
+            <gradient
+                android:type="linear"
+                android:angle="0"
+                android:startColor="@color/aegis_secondary_start"
+                android:endColor="@color/aegis_secondary_end" />
+        </shape>
+    </item>
+</ripple>

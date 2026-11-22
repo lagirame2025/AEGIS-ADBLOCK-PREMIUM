@@ -1,0 +1,691 @@
+{
+ "version": 1,
+ "sld_markers": [
+  "co",
+  "com",
+  "net",
+  "org",
+  "gov",
+  "edu",
+  "ac",
+  "or",
+  "go",
+  "web",
+  "sch",
+  "my",
+  "biz",
+  "ne",
+  "mil"
+ ],
+ "tld_weights": {
+  "top": 12,
+  "xyz": 10,
+  "click": 14,
+  "icu": 14,
+  "cfd": 14,
+  "sbs": 14,
+  "site": 6,
+  "online": 6,
+  "live": 6,
+  "vip": 10,
+  "bet": 25,
+  "win": 14,
+  "cc": 8,
+  "tk": 14,
+  "ml": 14,
+  "ga": 14,
+  "cf": 14,
+  "gq": 14,
+  "buzz": 12,
+  "rest": 14,
+  "monster": 14,
+  "cyou": 14,
+  "fun": 8,
+  "work": 8,
+  "loan": 16,
+  "men": 14,
+  "bid": 14,
+  "zip": 10,
+  "mov": 10,
+  "casino": 30,
+  "poker": 30,
+  "bingo": 20,
+  "lol": 6,
+  "pw": 12,
+  "ws": 8,
+  "su": 8
+ },
+ "judol_terms": [
+  {
+   "t": "gacor",
+   "w": 45,
+   "m": "sub"
+  },
+  {
+   "t": "maxwin",
+   "w": 45,
+   "m": "sub"
+  },
+  {
+   "t": "togel",
+   "w": 45,
+   "m": "sub"
+  },
+  {
+   "t": "sbobet",
+   "w": 50,
+   "m": "sub"
+  },
+  {
+   "t": "slotgacor",
+   "w": 30,
+   "m": "sub"
+  },
+  {
+   "t": "rtpslot",
+   "w": 40,
+   "m": "sub"
+  },
+  {
+   "t": "slotonline",
+   "w": 35,
+   "m": "sub"
+  },
+  {
+   "t": "slotdemo",
+   "w": 40,
+   "m": "sub"
+  },
+  {
+   "t": "judislot",
+   "w": 45,
+   "m": "sub"
+  },
+  {
+   "t": "judibola",
+   "w": 45,
+   "m": "sub"
+  },
+  {
+   "t": "judiqq",
+   "w": 45,
+   "m": "sub"
+  },
+  {
+   "t": "judionline",
+   "w": 45,
+   "m": "sub"
+  },
+  {
+   "t": "bandarq",
+   "w": 45,
+   "m": "sub"
+  },
+  {
+   "t": "dominoqq",
+   "w": 45,
+   "m": "sub"
+  },
+  {
+   "t": "pokerqq",
+   "w": 45,
+   "m": "sub"
+  },
+  {
+   "t": "bandartogel",
+   "w": 45,
+   "m": "sub"
+  },
+  {
+   "t": "kasino",
+   "w": 30,
+   "m": "sub"
+  },
+  {
+   "t": "casino",
+   "w": 30,
+   "m": "sub"
+  },
+  {
+   "t": "sicbo",
+   "w": 35,
+   "m": "sub"
+  },
+  {
+   "t": "baccarat",
+   "w": 30,
+   "m": "sub"
+  },
+  {
+   "t": "pragmaticplay",
+   "w": 20,
+   "m": "sub"
+  },
+  {
+   "t": "mahjongways",
+   "w": 35,
+   "m": "sub"
+  },
+  {
+   "t": "gatesofolympus",
+   "w": 40,
+   "m": "sub"
+  },
+  {
+   "t": "sweetbonanza",
+   "w": 35,
+   "m": "sub"
+  },
+  {
+   "t": "slot",
+   "w": 25,
+   "m": "tok"
+  },
+  {
+   "t": "judi",
+   "w": 35,
+   "m": "tok"
+  },
+  {
+   "t": "toto",
+   "w": 25,
+   "m": "tok"
+  },
+  {
+   "t": "rtp",
+   "w": 20,
+   "m": "tok"
+  },
+  {
+   "t": "jp",
+   "w": 10,
+   "m": "tok"
+  },
+  {
+   "t": "wd",
+   "w": 8,
+   "m": "tok"
+  },
+  {
+   "t": "depo",
+   "w": 12,
+   "m": "tok"
+  },
+  {
+   "t": "deposit",
+   "w": 10,
+   "m": "tok"
+  },
+  {
+   "t": "bet",
+   "w": 18,
+   "m": "tok"
+  },
+  {
+   "t": "qq",
+   "w": 15,
+   "m": "tok"
+  },
+  {
+   "t": "pkv",
+   "w": 30,
+   "m": "tok"
+  },
+  {
+   "t": "scatter",
+   "w": 15,
+   "m": "tok"
+  },
+  {
+   "t": "zeus",
+   "w": 8,
+   "m": "tok"
+  },
+  {
+   "t": "olympus",
+   "w": 10,
+   "m": "tok"
+  },
+  {
+   "t": "mpo",
+   "w": 20,
+   "m": "tok"
+  },
+  {
+   "t": "sbo",
+   "w": 20,
+   "m": "tok"
+  },
+  {
+   "t": "jackpot",
+   "w": 12,
+   "m": "tok"
+  },
+  {
+   "t": "bandar",
+   "w": 12,
+   "m": "tok"
+  },
+  {
+   "t": "poker",
+   "w": 18,
+   "m": "tok"
+  },
+  {
+   "t": "gambling",
+   "w": 30,
+   "m": "tok"
+  },
+  {
+   "t": "sportsbook",
+   "w": 30,
+   "m": "tok"
+  },
+  {
+   "t": "taruhan",
+   "w": 35,
+   "m": "tok"
+  }
+ ],
+ "lure_terms": [
+  "login",
+  "signin",
+  "verify",
+  "verifikasi",
+  "secure",
+  "update",
+  "klaim",
+  "claim",
+  "hadiah",
+  "undian",
+  "giveaway",
+  "bonus",
+  "gratis",
+  "free",
+  "saldo",
+  "blokir",
+  "unblock",
+  "akun",
+  "account",
+  "otp",
+  "apk",
+  "bpjs",
+  "cair",
+  "bansos",
+  "pajak",
+  "refund",
+  "wallet",
+  "suspend",
+  "konfirmasi",
+  "promo"
+ ],
+ "brands": {
+  "bca": [
+   "bca.co.id",
+   "klikbca.com",
+   "bca.id",
+   "mybca.com"
+  ],
+  "bri": [
+   "bri.co.id",
+   "bri.id",
+   "brimo.bri.co.id"
+  ],
+  "bni": [
+   "bni.co.id",
+   "bni.id"
+  ],
+  "mandiri": [
+   "bankmandiri.co.id",
+   "mandiri.co.id",
+   "livin.mandiri"
+  ],
+  "cimb": [
+   "cimbniaga.co.id",
+   "cimb.com"
+  ],
+  "seabank": [
+   "seabank.co.id"
+  ],
+  "jenius": [
+   "jenius.com",
+   "btpn.com"
+  ],
+  "dana": [
+   "dana.id"
+  ],
+  "ovo": [
+   "ovo.id"
+  ],
+  "gopay": [
+   "gopay.co.id",
+   "gojek.com"
+  ],
+  "shopeepay": [
+   "shopee.co.id",
+   "shopee.com"
+  ],
+  "linkaja": [
+   "linkaja.id"
+  ],
+  "tokopedia": [
+   "tokopedia.com",
+   "tokopedia.net"
+  ],
+  "shopee": [
+   "shopee.co.id",
+   "shopee.com",
+   "shopeemobile.com",
+   "shp.ee",
+   "susercontent.com"
+  ],
+  "lazada": [
+   "lazada.co.id",
+   "lazada.com",
+   "lazcdn.com"
+  ],
+  "bukalapak": [
+   "bukalapak.com"
+  ],
+  "blibli": [
+   "blibli.com"
+  ],
+  "bpjs": [
+   "bpjs-kesehatan.go.id",
+   "bpjsketenagakerjaan.go.id"
+  ],
+  "telkomsel": [
+   "telkomsel.com"
+  ],
+  "indosat": [
+   "indosatooredoo.com",
+   "indosat.com"
+  ],
+  "pln": [
+   "pln.co.id"
+  ],
+  "pertamina": [
+   "pertamina.com"
+  ],
+  "kominfo": [
+   "kominfo.go.id",
+   "komdigi.go.id"
+  ],
+  "komdigi": [
+   "komdigi.go.id",
+   "kominfo.go.id"
+  ],
+  "polri": [
+   "polri.go.id"
+  ],
+  "djp": [
+   "pajak.go.id"
+  ],
+  "kemenkeu": [
+   "kemenkeu.go.id"
+  ],
+  "paypal": [
+   "paypal.com",
+   "paypal.me",
+   "paypalobjects.com"
+  ],
+  "netflix": [
+   "netflix.com",
+   "nflxext.com",
+   "nflximg.net",
+   "nflxso.net",
+   "nflxvideo.net"
+  ],
+  "spotify": [
+   "scdn.co",
+   "spotify.com",
+   "spotifycdn.com"
+  ],
+  "whatsapp": [
+   "wa.me",
+   "whatsapp.com",
+   "whatsapp.net"
+  ],
+  "facebook": [
+   "facebook.com",
+   "facebook.net",
+   "fb.com",
+   "fb.me",
+   "fbcdn.net",
+   "fbsbx.com",
+   "messenger.com",
+   "meta.com"
+  ],
+  "instagram": [
+   "cdninstagram.com",
+   "ig.me",
+   "instagram.com"
+  ],
+  "google": [
+   "android.com",
+   "blogger.com",
+   "doubleclick.net",
+   "g.co",
+   "gmail.com",
+   "goo.gl",
+   "google-analytics.com",
+   "google.co.id",
+   "google.com",
+   "googleadservices.com",
+   "googleapis.com",
+   "googlesyndication.com",
+   "googletagmanager.com",
+   "googleusercontent.com",
+   "gstatic.com",
+   "withgoogle.com",
+   "youtube.com"
+  ],
+  "microsoft": [
+   "azure.com",
+   "bing.com",
+   "live.com",
+   "microsoft.com",
+   "microsoftonline-p.com",
+   "microsoftonline.com",
+   "msauth.net",
+   "msftauth.net",
+   "msn.com",
+   "office.com",
+   "office365.com",
+   "outlook.com",
+   "sharepoint.com",
+   "skype.com",
+   "windows.com",
+   "windows.net",
+   "xbox.com"
+  ],
+  "apple": [
+   "apple.com",
+   "cdn-apple.com",
+   "icloud.com",
+   "mzstatic.com"
+  ],
+  "tiktok": [
+   "byteoversea.com",
+   "ibytedtos.com",
+   "tiktok.com",
+   "tiktokcdn.com",
+   "tiktokv.com"
+  ],
+  "binance": [
+   "binance.com"
+  ],
+  "indodax": [
+   "indodax.com"
+  ],
+  "tokocrypto": [
+   "tokocrypto.com"
+  ],
+  "metamask": [
+   "metamask.io"
+  ]
+ },
+ "short_brand_tokens": [
+  "bca",
+  "bri",
+  "bni",
+  "ovo",
+  "pln",
+  "djp",
+  "dana"
+ ],
+ "shorteners": [
+  "bit.ly",
+  "tinyurl.com",
+  "cutt.ly",
+  "s.id",
+  "rb.gy",
+  "t.ly",
+  "is.gd",
+  "shorturl.at",
+  "ow.ly",
+  "tiny.cc",
+  "buff.ly",
+  "bitly.com",
+  "v.gd",
+  "shorturl.asia"
+ ],
+ "trusted": [
+  "amazon.com",
+  "android.com",
+  "anthropic.com",
+  "apple.com",
+  "azure.com",
+  "bankmandiri.co.id",
+  "bca.co.id",
+  "bing.com",
+  "blibli.com",
+  "blogger.com",
+  "bni.co.id",
+  "bpjs-kesehatan.go.id",
+  "brave.com",
+  "bri.co.id",
+  "bukalapak.com",
+  "byteoversea.com",
+  "cdn-apple.com",
+  "cdninstagram.com",
+  "cimbniaga.co.id",
+  "claude.ai",
+  "cloudflare.com",
+  "cnnindonesia.com",
+  "dana.id",
+  "detik.com",
+  "doubleclick.net",
+  "dropbox.com",
+  "duckduckgo.com",
+  "facebook.com",
+  "facebook.net",
+  "fb.com",
+  "fb.me",
+  "fbcdn.net",
+  "fbsbx.com",
+  "g.co",
+  "github.com",
+  "githubusercontent.com",
+  "gmail.com",
+  "gojek.com",
+  "goo.gl",
+  "google-analytics.com",
+  "google.co.id",
+  "google.com",
+  "googleadservices.com",
+  "googleapis.com",
+  "googlesyndication.com",
+  "googletagmanager.com",
+  "googleusercontent.com",
+  "googlevideo.com",
+  "grab.com",
+  "gstatic.com",
+  "ibytedtos.com",
+  "icloud.com",
+  "ig.me",
+  "instagram.com",
+  "klikbca.com",
+  "komdigi.go.id",
+  "kominfo.go.id",
+  "kompas.com",
+  "kumparan.com",
+  "lazada.co.id",
+  "lazada.com",
+  "lazcdn.com",
+  "linkaja.id",
+  "linkedin.com",
+  "liputan6.com",
+  "live.com",
+  "messenger.com",
+  "meta.com",
+  "microsoft.com",
+  "microsoftonline-p.com",
+  "microsoftonline.com",
+  "mozilla.org",
+  "msauth.net",
+  "msftauth.net",
+  "msn.com",
+  "mzstatic.com",
+  "netflix.com",
+  "nflxext.com",
+  "nflximg.net",
+  "nflxso.net",
+  "nflxvideo.net",
+  "notion.so",
+  "office.com",
+  "office365.com",
+  "openai.com",
+  "opera.com",
+  "outlook.com",
+  "ovo.id",
+  "pajak.go.id",
+  "paypal.com",
+  "paypal.me",
+  "paypalobjects.com",
+  "pln.co.id",
+  "polri.go.id",
+  "reddit.com",
+  "scdn.co",
+  "sharepoint.com",
+  "shopee.co.id",
+  "shopee.com",
+  "shopeemobile.com",
+  "shp.ee",
+  "skype.com",
+  "slack.com",
+  "spotify.com",
+  "spotifycdn.com",
+  "susercontent.com",
+  "t.me",
+  "telegram.org",
+  "telkomsel.com",
+  "tiktok.com",
+  "tiktokcdn.com",
+  "tiktokv.com",
+  "tokopedia.com",
+  "tokopedia.net",
+  "traveloka.com",
+  "tribunnews.com",
+  "twitter.com",
+  "wa.me",
+  "whatsapp.com",
+  "whatsapp.net",
+  "wikipedia.org",
+  "windows.com",
+  "windows.net",
+  "withgoogle.com",
+  "x.com",
+  "xbox.com",
+  "yahoo.com",
+  "youtu.be",
+  "youtube.com",
+  "ytimg.com",
+  "zoom.us"
+ ],
+ "thresholds": {
+  "block": 70,
+  "warn": 40
+ },
+ "judol_class_min": 45
+}

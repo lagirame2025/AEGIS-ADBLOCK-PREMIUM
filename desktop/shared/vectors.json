@@ -1,0 +1,179 @@
+{
+"hosts": [
+{
+"host": "google.com",
+"cls": "trusted"
+},
+{
+"host": "mail.google.com",
+"cls": "trusted"
+},
+{
+"host": "klikbca.com",
+"cls": "trusted"
+},
+{
+"host": "ibank.bankmandiri.co.id",
+"cls": "trusted"
+},
+{
+"host": "www.tokopedia.com",
+"cls": "trusted"
+},
+{
+"host": "detik.com",
+"cls": "trusted"
+},
+{
+"host": "timeslot.com",
+"cls": "ok"
+},
+{
+"host": "toto.com",
+"cls": "ok",
+"maxScore": 39
+},
+{
+"host": "bet365.com",
+"cls": "ok",
+"maxScore": 39
+},
+{
+"host": "pineapple.com",
+"cls": "ok"
+},
+{
+"host": "example.org",
+"cls": "ok"
+},
+{
+"host": "stackoverflow.com",
+"cls": "ok"
+},
+{
+"host": "jp.morgan.com",
+"cls": "ok"
+},
+{
+"host": "judiciary.gov",
+"cls": "ok"
+},
+{
+"host": "slot-gacor-maxwin.xyz",
+"cls": "judol",
+"minScore": 90
+},
+{
+"host": "rtpslot88.com",
+"cls": "judol"
+},
+{
+"host": "togel4d.net",
+"cls": "judol"
+},
+{
+"host": "situs-judi-online24jam.top",
+"cls": "judol"
+},
+{
+"host": "gacor77.life",
+"cls": "judol"
+},
+{
+"host": "link-sbobet88.vip",
+"cls": "judol"
+},
+{
+"host": "dominoqq.club",
+"cls": "judol"
+},
+{
+"host": "slot.demo-pragmaticplay.site",
+"cls": "judol"
+},
+{
+"host": "bca-login-verifikasi.xyz",
+"cls": "scam",
+"minScore": 70
+},
+{
+"host": "bca.co.id.secure-login.top",
+"cls": "scam"
+},
+{
+"host": "klaim-hadiah-dana.cfd",
+"cls": "scam"
+},
+{
+"host": "tokopedia-promo.shop",
+"cls": "scam"
+},
+{
+"host": "xn--bca-6ve.com",
+"cls": "scam"
+},
+{
+"host": "http-paypal-verify-account.icu",
+"cls": "scam"
+},
+{
+"host": "192.168.10.5",
+"cls": "ok"
+},
+{
+"host": "bit.ly",
+"cls": "ok",
+"maxScore": 39,
+"minScore": 30
+},
+{
+"host": "docs.google.com.evil.xyz",
+"cls": "warn"
+},
+{
+"host": "shopee-gratis-ongkir.click",
+"cls": "scam"
+},
+{
+"host": "45.67.89.10",
+"cls": "warn"
+},
+{
+"host": "127.0.0.1",
+"cls": "ok",
+"maxScore": 0
+},
+{
+"host": "maxwin.com",
+"cls": "judol"
+},
+{
+"host": "rtp-slot.com",
+"cls": "judol"
+},
+{
+"host": "slotted.com",
+"cls": "ok"
+},
+{
+"host": "wd-depo.com",
+"cls": "ok"
+},
+{
+"host": "login.microsoftonline.com",
+"cls": "trusted"
+},
+{
+"host": "login.live.com",
+"cls": "trusted"
+},
+{
+"host": "accounts.google.com",
+"cls": "trusted"
+},
+{
+"host": "static.xx.fbcdn.net",
+"cls": "trusted"
+}
+]
+}

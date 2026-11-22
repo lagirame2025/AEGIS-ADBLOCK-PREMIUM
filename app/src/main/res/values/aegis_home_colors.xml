@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="aegis_bg_top">#0F2027</color>
+    <color name="aegis_bg_mid">#203A43</color>
+    <color name="aegis_bg_bottom">#2C5364</color>
+
+    <color name="aegis_primary_start">#00C9A7</color>
+    <color name="aegis_primary_end">#00A3FF</color>
+
+    <color name="aegis_secondary_start">#FF8A65</color>
+    <color name="aegis_secondary_end">#FF5E62</color>
+
+    <color name="aegis_tertiary_start">#7F7FD5</color>
+    <color name="aegis_tertiary_end">#86A8E7</color>
+
+    <color name="aegis_ripple">#33FFFFFF</color>
+    <color name="aegis_text_primary">#FFFFFF</color>
+    <color name="aegis_text_secondary">#B8C6CE</color>
+    <color name="aegis_chip_on">#2ECC71</color>
+    <color name="aegis_chip_off">#9AA5AA</color>
+</resources>

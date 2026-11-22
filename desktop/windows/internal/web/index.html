@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aegis AdBlock</title>
+<style>
+:root{--bg:#f5f6f8;--card:#fff;--ink:#14171c;--mut:#667085;--line:#e4e7ec;--acc:#0b6bcb;--ok:#117a45;--bad:#c0262d;--warn:#a15c00;--bar:#e8edf3}
+@media(prefers-color-scheme:dark){:root{--bg:#0e1116;--card:#171b22;--ink:#e8ecf2;--mut:#98a2b3;--line:#262c36;--acc:#4da3ff;--ok:#3ccf8e;--bad:#ff6b72;--warn:#f0b34a;--bar:#232a34}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,Segoe UI,Roboto,sans-serif}
+.wrap{max-width:980px;margin:0 auto;padding:20px 16px 60px}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:18px}
+h1{font-size:22px;margin:0;letter-spacing:-.01em}h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);margin:0 0 10px}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:99px;border:1px solid var(--line);background:var(--card);font-weight:600;font-size:13px}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--ok)}.off .dot{background:var(--warn)}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(4,1fr)}@media(max-width:760px){.grid{grid-template-columns:repeat(2,1fr)}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.big{font-size:28px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums}.mut{color:var(--mut);font-size:13px}
+.row{display:grid;gap:12px;grid-template-columns:1fr 1fr;margin-top:12px}@media(max-width:760px){.row{grid-template-columns:1fr}}
+.bar{height:8px;border-radius:6px;background:var(--bar);overflow:hidden;margin:4px 0 12px}.bar i{display:block;height:100%;background:var(--acc)}
+.cat{display:flex;justify-content:space-between;font-size:14px}
+button{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:7px 12px;border-radius:9px}
+button:hover{border-color:var(--acc)}button.p{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600}
+input[type=text]{font:inherit;padding:8px 10px;border-radius:9px;border:1px solid var(--line);background:var(--bg);color:var(--ink);min-width:0;flex:1}
+.flex{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.sw{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 0;border-top:1px solid var(--line)}.sw:first-of-type{border-top:0}
+.sw small{display:block;color:var(--mut)}
+.tg{appearance:none;width:42px;height:24px;border-radius:99px;background:var(--bar);position:relative;cursor:pointer;border:1px solid var(--line);flex:none}
+.tg:checked{background:var(--acc)}.tg::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.15s}.tg:checked::after{left:20px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}td{padding:6px 4px;border-top:1px solid var(--line);vertical-align:middle;word-break:break-all}
+.tag{font-size:11.5px;padding:2px 8px;border-radius:99px;font-weight:600;white-space:nowrap}
+.t-iklan{background:rgba(11,107,203,.14);color:var(--acc)}.t-judol{background:rgba(192,38,45,.14);color:var(--bad)}.t-scam{background:rgba(161,92,0,.16);color:var(--warn)}.t-doh,.t-aturan-sendiri{background:var(--bar);color:var(--mut)}
+.err{background:rgba(192,38,45,.12);border:1px solid var(--bad);color:var(--bad);padding:10px 14px;border-radius:12px;margin-bottom:12px;display:none}
+.res{margin-top:10px;font-size:14px}.res b.bad{color:var(--bad)}.res b.ok{color:var(--ok)}
+</style>
+</head>
+<body><div class="wrap">
+<header>
+ <div><h1>Aegis AdBlock</h1><div class="mut" id="ver"></div></div>
+ <div class="flex"><span class="pill" id="st"><span class="dot"></span><span id="stt">Memuat…</span></span>
+ <button data-p="15">Jeda 15 mnt</button><button data-p="60">1 jam</button><button data-p="0" class="p">Aktifkan</button></div>
+</header>
+<div class="err" id="err"></div>
+<div class="grid">
+ <div class="card"><div class="mut">Permintaan DNS</div><div class="big" id="total">0</div></div>
+ <div class="card"><div class="mut">Diblokir</div><div class="big" id="blocked">0</div><div class="mut" id="pct"></div></div>
+ <div class="card"><div class="mut">Dari cache</div><div class="big" id="cache">0</div></div>
+ <div class="card"><div class="mut">Daftar blokir</div><div class="big" id="lsz">0</div><div class="mut" id="lsd"></div></div>
+</div>
+<div class="row">
+ <div class="card"><h2>Kategori diblokir</h2><div id="cats"></div></div>
+ <div class="card"><h2>Perlindungan</h2>
+  <div class="sw"><div>Mesin Smart (AI lokal)<small>Mendeteksi judol, phishing, penyamaran merek tanpa daftar</small></div><input type="checkbox" class="tg" data-k="smart"></div>
+  <div class="sw"><div>Mode ketat<small>Heuristik ads.*, telemetry.*, pixel.* …</small></div><input type="checkbox" class="tg" data-k="strict"></div>
+  <div class="sw"><div>Blokir DoH publik<small>Mencegah browser melewati filter</small></div><input type="checkbox" class="tg" data-k="doh"></div>
+  <div class="flex" style="margin-top:10px"><button id="upd" class="p">Perbarui daftar sekarang</button><span class="mut" id="updt"></span></div>
+ </div>
+</div>
+<div class="row">
+ <div class="card"><h2>Periksa domain (analisis Smart)</h2>
+  <div class="flex"><input type="text" id="chk" placeholder="mis. slot-gacor-maxwin.xyz"><button id="chkb">Periksa</button></div><div class="res" id="chkr"></div>
+  <h2 style="margin-top:18px">Aturan sendiri</h2>
+  <div class="flex"><input type="text" id="rule" placeholder="domain.com"><button id="rb">Blokir</button><button id="ra">Izinkan</button></div>
+  <div id="rules" class="mut" style="margin-top:8px"></div>
+ </div>
+ <div class="card"><h2>Upstream DNS</h2><div id="ups" class="mut"></div></div>
+</div>
+<div class="card" style="margin-top:12px"><h2>Terakhir diblokir (ketuk “Izinkan” bila ada yang rusak)</h2><table id="log"></table></div>
+</div>
+<script>
+const $=s=>document.querySelector(s),H={'Content-Type':'application/json','X-Aegis':'1'};
+const api=(p,b)=>b===undefined?fetch(p).then(r=>r.json()):fetch(p,{method:'POST',headers:H,body:JSON.stringify(b)}).then(r=>r.json());
+const n=x=>Number(x||0).toLocaleString('id-ID');
+const NAMES={iklan:'Iklan & pelacak',judol:'Judi online',scam:'Scam & phishing','aturan-sendiri':'Aturan sendiri',doh:'DoH'};
+function el(t,c,x){const e=document.createElement(t);if(c)e.className=c;if(x!==undefined)e.textContent=x;return e}
+async function load(){
+ const s=await api('/api/stats');
+ $('#ver').textContent='Versi '+s.info.version+' · aktif '+Math.floor(s.info.uptime/60)+' mnt';
+ const p=s.pausedUntil>s.now;$('#st').className='pill'+(p?' off':'');$('#stt').textContent=p?'Dijeda '+Math.ceil((s.pausedUntil-s.now)/60)+' mnt':'Perlindungan aktif';
+ $('#total').textContent=n(s.total);$('#blocked').textContent=n(s.blocked);$('#cache').textContent=n(s.cacheHits);
+ $('#pct').textContent=s.total?(100*s.blocked/s.total).toFixed(1)+'% dari semua query':'';
+ const L=s.lists;$('#lsz').textContent=n(L.ads+L.judol+L.scam);$('#lsd').textContent='iklan '+n(L.ads)+' · judol '+n(L.judol)+' · scam '+n(L.scam);
+ const cats=$('#cats');cats.textContent='';const mx=Math.max(1,...Object.values(s.cats||{}));
+ const keys=Object.keys(s.cats||{});if(!keys.length)cats.append(el('div','mut','Belum ada.'));
+ keys.sort((a,b)=>s.cats[b]-s.cats[a]).forEach(k=>{const d=el('div'),h=el('div','cat');h.append(el('span','',NAMES[k]||k),el('b','',n(s.cats[k])));
+  const b=el('div','bar'),i=el('i');i.style.width=(100*s.cats[k]/mx)+'%';b.append(i);d.append(h,b);cats.append(d)});
+ document.querySelectorAll('.tg').forEach(t=>t.checked=!!s[t.dataset.k]);
+ $('#updt').textContent=s.updating?'Mengunduh…':(s.last?'Terakhir: '+new Date(s.last.time).toLocaleString('id-ID'):'Belum pernah');
+ const u=$('#ups');u.textContent='';(s.upstreams||[]).forEach(x=>{u.append(el('div','',x.host+' · '+x.ms+' ms'))});
+ const e=s.info.errors||[];$('#err').style.display=e.length?'block':'none';$('#err').textContent=e.join(' | ');
+ const r=await api('/api/recent?n=60');const t=$('#log');t.textContent='';
+ if(!r.length){const tr=el('tr'),td=el('td','mut','Belum ada yang diblokir.');tr.append(td);t.append(tr)}
+ r.forEach(x=>{const tr=el('tr');tr.append(el('td','mut',new Date(x.t).toLocaleTimeString('id-ID')),el('td','',x.name));
+  const c=el('td');c.append(el('span','tag t-'+x.cat,(NAMES[x.cat]||x.cat)+' · '+x.why));tr.append(c);
+  const a=el('td'),b=el('button','','Izinkan');b.onclick=async()=>{await api('/api/rule',{domain:x.name,allow:true});load()};a.append(b);tr.append(a);t.append(tr)});
+ const q=await api('/api/rules');const rs=$('#rules');rs.textContent='';
+ [['Blokir',q.block,false],['Izinkan',q.allow,true]].forEach(([lab,arr,al])=>(arr||[]).forEach(d=>{const sp=el('span','',lab+': '+d+' ');const b=el('button','','×');b.style.padding='0 7px';b.onclick=async()=>{await api('/api/rule',{action:'remove',domain:d,allow:al});load()};sp.append(b);rs.append(sp,el('br'))}));
+}
+document.querySelectorAll('[data-p]').forEach(b=>b.onclick=async()=>{await api('/api/pause',{minutes:+b.dataset.p});load()});
+document.querySelectorAll('.tg').forEach(t=>t.onchange=async()=>{await api('/api/toggle',{key:t.dataset.k,value:t.checked});load()});
+$('#upd').onclick=async()=>{await api('/api/update',{});setTimeout(load,500)};
+const addRule=al=>async()=>{const d=$('#rule').value.trim();if(!d)return;const r=await api('/api/rule',{domain:d,allow:al});if(!r.ok)alert('Domain tidak valid');$('#rule').value='';load()};
+$('#rb').onclick=addRule(false);$('#ra').onclick=addRule(true);
+$('#chkb').onclick=async()=>{const h=$('#chk').value.trim();if(!h)return;const r=await api('/api/check?host='+encodeURIComponent(h));const o=$('#chkr');o.textContent='';
+ const v=r.verdict,s=r.smart;const b=el('b',v.Blocked?'bad':'ok',v.Blocked?'DIBLOKIR ('+(NAMES[v.Cat]||v.Cat)+', '+v.Why+')':(s.cls==='trusted'?'Tepercaya':'Lolos'));
+ o.append(b,el('div','mut','Skor risiko Smart: '+s.score+'/100 · kelas: '+s.cls+(s.reasons&&s.reasons.length?' · '+s.reasons.join('; '):'')))};
+load();setInterval(load,4000);
+</script></body></html>

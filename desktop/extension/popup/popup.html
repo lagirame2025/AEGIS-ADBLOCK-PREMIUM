@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aegis AdBlock</title><link rel="stylesheet" href="popup.css"></head>
+<body>
+<header><div class="logo">🛡</div><div><h1>Aegis AdBlock</h1><div class="sub" id="host">…</div></div>
+<label class="sw big"><input type="checkbox" id="enabled"><span></span></label></header>
+<section id="risk" class="risk hidden"><b id="riskT"></b><div id="riskW"></div></section>
+<section class="nums"><div><b id="nHid">0</b><span>elemen disembunyikan</span></div><div><b id="nBlk">0</b><span>permintaan diblokir</span></div><div><b id="nTot">0</b><span>halaman berbahaya dicegat</span></div></section>
+<section><label class="row"><span>Nonaktifkan di situs ini</span><span class="sw"><input type="checkbox" id="siteOff"><span></span></span></label></section>
+<section class="opts"><h2>Perlindungan</h2>
+<label class="row"><span>Iklan YouTube</span><span class="sw"><input type="checkbox" data-k="youtube"><span></span></span></label>
+<label class="row"><span>Iklan media sosial berlabel</span><span class="sw"><input type="checkbox" data-k="social"><span></span></span></label>
+<label class="row"><span>Smart Ads (deteksi iklan tersamar)</span><span class="sw"><input type="checkbox" data-k="smartAds"><span></span></span></label>
+<label class="row"><span>Komentar judol &amp; penipuan</span><span class="sw"><input type="checkbox" data-k="comments"><span></span></span></label>
+<label class="row"><span>Tandai tautan scam/judol</span><span class="sw"><input type="checkbox" data-k="links"><span></span></span></label>
+<label class="row"><span>Penjaga situs berbahaya</span><span class="sw"><input type="checkbox" data-k="guard"><span></span></span></label>
+<label class="row"><span>Peringatan phishing (halaman login)</span><span class="sw"><input type="checkbox" data-k="phishing"><span></span></span></label>
+<label class="row"><span>Hapus overlay jebakan klik</span><span class="sw"><input type="checkbox" data-k="overlays"><span></span></span></label>
+<label class="row"><span>Tembok &ldquo;matikan adblock&rdquo;</span><span class="sw"><input type="checkbox" data-k="walls"><span></span></span></label>
+<label class="row"><span>Clickbait</span><select id="clickbait"><option value="off">Biarkan</option><option value="mark">Tandai</option><option value="hide">Sembunyikan</option></select></label>
+</section>
+<section><h2>Daftar blokir</h2><div class="sub" id="lists">…</div><button id="upd">Perbarui sekarang</button></section>
+<footer>Semua analisis berjalan di perangkat Anda. Tidak ada data dikirim ke server mana pun.</footer>
+<script src="popup.js"></script></body></html>

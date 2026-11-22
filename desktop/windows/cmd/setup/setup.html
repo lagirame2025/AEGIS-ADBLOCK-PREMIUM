@@ -1,0 +1,40 @@
+<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pasang Aegis AdBlock</title>
+<style>
+:root{--bg:#0e1116;--card:#171b22;--ink:#e8ecf2;--mut:#98a2b3;--line:#262c36;--acc:#4da3ff;--ok:#3ccf8e;--bad:#ff6b72}
+@media(prefers-color-scheme:light){:root{--bg:#f5f6f8;--card:#fff;--ink:#14171c;--mut:#667085;--line:#e4e7ec;--acc:#0b6bcb;--ok:#117a45;--bad:#c0262d}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,Segoe UI,sans-serif;display:grid;place-items:center;min-height:100vh;padding:16px}
+.card{width:100%;max-width:560px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:28px}
+h1{margin:0 0 4px;font-size:24px;letter-spacing:-.02em}.mut{color:var(--mut);font-size:14px}
+ul{padding-left:18px;margin:14px 0}li{margin:4px 0}
+label{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--line)}label small{display:block;color:var(--mut)}
+button{font:inherit;cursor:pointer;border-radius:11px;padding:11px 18px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+button.p{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:700}button:disabled{opacity:.5;cursor:default}
+.log{margin-top:16px;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px;max-height:220px;overflow:auto;font:13px/1.5 ui-monospace,Consolas,monospace;white-space:pre-wrap}
+.err{color:var(--bad);font-weight:600}.ok{color:var(--ok);font-weight:600}.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+</style></head><body><div class="card">
+<h1>Aegis AdBlock</h1><div class="mut" id="v">Pemblokir iklan, judol &amp; scam tingkat sistem untuk Windows 64-bit</div>
+<ul><li>Filter DNS lokal untuk <b>semua aplikasi &amp; browser</b>: iklan, pelacak, judi online, phishing/scam</li>
+<li>Mesin Smart (AI lokal): mendeteksi domain judol &amp; penyamaran merek tanpa menunggu daftar</li>
+<li>Tanpa akun, tanpa kirim data, jalan otomatis saat Windows menyala</li></ul>
+<div id="opts">
+<label><input type="checkbox" id="fs" checked><span>DNS cadangan otomatis<small>Bila Aegis berhenti mendadak, internet tetap jalan lewat DNS asli Anda.</small></span></label>
+<label><input type="checkbox" id="doh" checked><span>Matikan DNS-over-HTTPS di Chrome/Edge/Brave<small>Agar browser tidak melewati filter. Browser akan menampilkan “dikelola organisasi”.</small></span></label>
+</div>
+<div class="row"><button class="p" id="go">Pasang sekarang</button><button id="un" style="display:none">Copot Aegis</button><button id="op" style="display:none">Buka dasbor</button></div>
+<div class="log" id="log" style="display:none"></div><div id="res" style="margin-top:12px"></div>
+</div><script>
+const $=s=>document.querySelector(s),H={'Content-Type':'application/json','X-Aegis':'1'};
+const post=(p,b)=>fetch(p,{method:'POST',headers:H,body:JSON.stringify(b||{})}).then(r=>r.json());
+let t=0;
+async function poll(){const p=await (await fetch('/api/progress')).json();const l=$('#log');l.style.display='block';l.textContent=p.log.join('\n');l.scrollTop=1e9;
+ if(p.done){clearInterval(t);const r=$('#res');r.textContent='';const s=document.createElement('div');
+  if(p.err){s.className='err';s.textContent='Gagal: '+p.err;$('#go').disabled=false}
+  else if(p.mode==='uninstall'){s.className='ok';s.textContent='Aegis sudah dicopot. DNS Windows dikembalikan.'}
+  else{s.className='ok';s.textContent='Terpasang! Perlindungan aktif. Ekstensi browser ada di folder “extensions” di dalam folder instalasi.';$('#op').style.display='';}
+  r.append(s)}}
+$('#go').onclick=async()=>{$('#go').disabled=true;$('#res').textContent='';await post('/api/install',{failsafe:$('#fs').checked,doh:$('#doh').checked});t=setInterval(poll,500)};
+$('#un').onclick=async()=>{if(!confirm('Copot Aegis dan kembalikan DNS Windows?'))return;await post('/api/uninstall');t=setInterval(poll,500)};
+$('#op').onclick=()=>post('/api/open');
+fetch('/api/info').then(r=>r.json()).then(i=>{$('#v').textContent='Versi '+i.version+' · '+(i.sim?'MODE SIMULASI (bukan Windows)':'Windows 64-bit');if(i.installed){$('#un').style.display='';$('#go').textContent='Pasang ulang / perbarui'}});
+</script></body></html>
