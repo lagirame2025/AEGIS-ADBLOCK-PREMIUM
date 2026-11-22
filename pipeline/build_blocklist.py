@@ -56,6 +56,43 @@ def drop_never(domains):
     bad = {d for d in domains if d in NEVER}
     return set(domains) - bad, sorted(bad)
 
+# "Kenari": host yang bila terblokir membuat HP/aplikasi rusak (deteksi internet, notifikasi push, login, captcha,
+# sinkron waktu, bank/toko populer). Beda dengan _NEVER (nama persis), kenari juga menangkap INDUK yang menelan mereka,
+# mis. entri "co.id" dari sumber yang salah akan memblokir semua situs .co.id. Bukan soal selera privasi: hanya
+# fungsi inti. Entri pemblokir otomatis dibuang (penyembuhan mandiri) dan dilaporkan di ringkasan run.
+_CANARY = """connectivitycheck.gstatic.com connectivitycheck.android.com clients3.google.com www.google.com
+www.msftconnecttest.com dns.msftncsi.com captive.apple.com detectportal.firefox.com time.android.com time.apple.com
+mtalk.google.com alt1-mtalk.google.com fcm.googleapis.com android.clients.google.com play.googleapis.com play.google.com
+accounts.google.com oauth2.googleapis.com www.googleapis.com fonts.gstatic.com www.gstatic.com ssl.gstatic.com
+lh3.googleusercontent.com i.ytimg.com www.youtube.com courier.push.apple.com web.whatsapp.com g.whatsapp.net mmg.whatsapp.net
+www.recaptcha.net www.hcaptcha.com challenges.cloudflare.com cdnjs.cloudflare.com cdn.jsdelivr.net ajax.googleapis.com
+login.microsoftonline.com login.live.com update.microsoft.com raw.githubusercontent.com api.github.com""".split()
+CANARY = sorted(set(_CANARY) | NEVER)
+
+def blockers(domains, host):
+    """Entri di `domains` yang memblokir `host`: host itu sendiri atau induknya (min. 2 label, bukan TLD telanjang)."""
+    parts = host.split(".")
+    return [c for c in (".".join(parts[i:]) for i in range(len(parts) - 1)) if c in domains]
+
+def heal(domains, canary=CANARY):
+    """Buang entri yang akan memblokir host kenari. Mengembalikan (domain_aman, {entri_dibuang: [host_terdampak]})."""
+    doms = set(domains); culprits = {}
+    for host in canary:
+        for b in blockers(doms, host):
+            culprits.setdefault(b, []).append(host)
+    return doms - set(culprits), culprits
+
+def write_summary(per_source, total, healed):
+    """Ringkasan Markdown di halaman run GitHub Actions (bila berjalan di sana)."""
+    path = os.environ.get("GITHUB_STEP_SUMMARY")
+    if not path: return
+    rows = "\n".join(f"| {n} | {u} |" for u, n in per_source.items())
+    heals = "\n".join(f"- `{b}` (menghalangi: {', '.join(h[:3])}{'...' if len(h) > 3 else ''})" for b, h in sorted(healed.items()))
+    with open(path, "a", encoding="utf-8") as f:
+        f.write(f"### Blocklist: {total} domain\n\n| Domain | Sumber |\n|---:|---|\n{rows}\n\n")
+        f.write(f"**Penyembuhan mandiri:** {len(healed)} entri berbahaya dibuang\n{heals}\n" if healed
+                else "**Penyembuhan mandiri:** tidak ada entri berbahaya.\n")
+
 def degraded_sources(per_source, prev, ratio=0.5, floor=1000):
     """Sumber yang hasilnya anjlok > (1-ratio) dibanding hitungan sukses terakhirnya (down / format berubah)."""
     return [(u, prev[u], n) for u, n in per_source.items() if prev.get(u, 0) >= floor and n < prev[u] * ratio]
@@ -103,6 +140,9 @@ def main():
     force = os.environ.get("FORCE") == "1"
     out, removed = drop_never(out)
     if removed: print("PERINGATAN: entri terlarang dibuang dari sumber:", *removed, sep="\n  ", file=sys.stderr)
+    out, healed = heal(out)
+    for b, hosts in sorted(healed.items()):
+        print(f"::warning::Entri '{b}' dibuang karena akan memblokir {', '.join(hosts[:3])}", file=sys.stderr)
     bad = degraded_sources(per_source, load_stats().get("sources", {}))
     if bad and not force:
         sys.exit("sumber anjlok >50% dari hitungan terakhir, batal menimpa (jalankan manual dengan force=true bila sah):\n" +
@@ -120,6 +160,7 @@ def main():
     dest.write_text("\n".join(final) + "\n")
     print(len(out), "domain mentah ->", len(final), "setelah buang subdomain redundan")
     save_stats(per_source, len(final))
+    write_summary(per_source, len(final), healed)
     cosmetic()
 
 def cosmetic():
