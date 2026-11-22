@@ -73,7 +73,7 @@ class AdBlockVpnService : VpnService() {
         private const val CHANNEL_ID = "aegis_vpn_status"
         private const val NOTIF_ID = 42
     }
-    private var tun: ParcelFileDescriptor? = null
+    @Volatile private var tun: ParcelFileDescriptor? = null
     // Antrian dibatasi: saat banjir query, yang paling lama dibuang (klien toh sudah menyerah/mengulang),
     // sehingga memori tidak membengkak dan query baru tetap dilayani.
     private val pool = ThreadPoolExecutor(32, 32, 30L, TimeUnit.SECONDS, ArrayBlockingQueue<Runnable>(512),
@@ -113,6 +113,9 @@ class AdBlockVpnService : VpnService() {
 
     override fun onStartCommand(i: Intent?, f: Int, id: Int): Int {
         if (i?.action == "STOP") { stop(); return START_NOT_STICKY }
+        // Android mewajibkan startForeground() dalam ~5 detik setelah startForegroundService() (mis. saat boot).
+        // Panggil PERTAMA, sebelum memuat blocklist besar / establish(), supaya tidak crash di HP lambat.
+        try { startForeground(NOTIF_ID, buildNotification()) } catch (_: Exception) { }
         if (running) return START_STICKY
         Blocklist.load(this)
         DnsCache.clear()
@@ -133,9 +136,10 @@ class AdBlockVpnService : VpnService() {
         for (pkg in skip) { try { b.addDisallowedApplication(pkg) } catch (_: Exception) { } }
         if (getSharedPreferences("aegis_prefs", MODE_PRIVATE).getBoolean(Prefs.CALL_BYPASS, true))
             for (pkg in CALL_APPS) { try { b.addDisallowedApplication(pkg) } catch (_: Exception) { } }
-        val pfd = b.establish() ?: return START_NOT_STICKY
+        // Izin VPN dicabut/belum ada: establish() null. Tutup notifikasi & layanan dengan rapi (tanpa crash).
+        val pfd = b.establish()
+        if (pfd == null) { stop(); return START_NOT_STICKY }
         tun = pfd; running = true
-        startForeground(NOTIF_ID, buildNotification())
         watchSystemDns()
         Thread { loop(pfd) }.start()
         return START_STICKY
@@ -178,12 +182,12 @@ class AdBlockVpnService : VpnService() {
         val inp = FileInputStream(pfd.fileDescriptor); val out = FileOutputStream(pfd.fileDescriptor)
         val buf = ByteArray(32767)
         try {
-            while (running) {
+            while (running && tun === pfd) {
                 val n = inp.read(buf); if (n <= 0) { Thread.sleep(20); continue }
                 // Satu paket cacat TIDAK boleh mematikan seluruh VPN: tangani per paket.
                 try { dispatch(buf, n, out) } catch (_: Exception) { }
             }
-        } catch (_: Exception) { } finally { if (running) stop() }
+        } catch (_: Exception) { } finally { if (running && tun === pfd) stop() }
     }
 
     private fun dispatch(buf: ByteArray, n: Int, out: FileOutputStream) {
