@@ -12256,6 +12256,7 @@ grid.id,gridpop.id##.top_banner-wrapper
 grid.id,motorplus-online.com##.nkt__stick--left
 grid.id,motorplus-online.com##.nkt__stick--right
 gridinsoft.com###modal-leave
+gridinsoft.com##.am-report-anchor
 gridinsoft.com##[data-report-ad]
 gridoto.com###div-Inside-Medium-Rectangle
 gridoto.com##.ads-liftdown
