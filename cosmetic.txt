@@ -8654,7 +8654,7 @@ artificialintelligence-news.com##[href^="https://www.ai-expo.net/"]
 artificialintelligence-news.com##[href^="https://www.artificialintelligence-news.com/go/"]
 artisbokep.site###floating-banner-inner
 artisbokep.site###top-floating-banner-inner
-artnews.com,deadline.com,goldderby.com,hollywoodreporter.com,variety.com,vibe.com##.boomerang
+artnews.com,billboard.com,deadline.com,goldderby.com,hollywoodreporter.com,sportico.com,variety.com,vibe.com,wwd.com##.boomerang
 artscanvas.org##.funders
 artsy.net##.IITnS
 artsy.net##.dDusYa
@@ -8666,7 +8666,9 @@ as.com##.slider-producto
 as.com,desdelinux.net,tutiempo.net,ubunlog.com##.publi
 as.com,gokunming.com##.prom
 ascii-code.com##.text-center.mb-3
+ascopost.com##.section--full-width-ad
 ascopost.com,fermanaghherald.com,sofx.com##.ad-text
+ascopost.com,kingmods.net,tappedout.net,tvinsider.com##.banner-ad
 ashemaletube.com##div[class*="pinbar"]
 ashemaletube.com,boyfriendtv.com,fetishpapa.com##.grid:has(a[href*="faphouse.com"])
 ashemaletube.com,boyfriendtv.com,fetishpapa.com##.right-rail-block
@@ -13472,7 +13474,6 @@ kingbokep.media##video[src*=".webm"]:not(div[class*="video"] > img)
 kingmodapk.net,online-calculator.org##[style*="height:300px"]
 kingmods.net##[data-ad-wrapper-slot]
 kingmods.net##[x-data="nativeAd"]
-kingmods.net,tappedout.net,tvinsider.com##.banner-ad
 kingsleague.pro###partnersGrid
 kinitv.com##.bg-gray-100:has(.adunitContainer)
 kiplinger.com##.dianomi_gallery_wrapper
@@ -15432,12 +15433,15 @@ pewarta.co.id##.billboard_pushdown
 pewarta.co.id##.dynamic_ads
 pexels.com##.inline-ads
 pexels.com##[class*="GridLayout_item"]:has(img[src*="media.istockphoto.com/"])
+pexels.com##[data-testid="cell"]:has(a[href*="/k/eyJ"])
 pexels.com##[data-testid="column"] [data-testid="item"]:has([class*="AIGCAdShared"])
 pexels.com##[data-testid="column"] [data-testid="item"]:has([data-heading*="Sponsored"])
 pexels.com##[data-testid="column"] [data-testid="item"]:has([data-text="Sponsored Photos"])
 pexels.com##[data-testid="column"] [data-testid="item"]:has([data-title*="Sponsored"])
 pexels.com##[data-testid="column"] [data-testid="item"]:has(a[rel*="sponsored"])
+pexels.com##[data-testid="item"]:has(a[href*="utm_campaign=aigc_pexelscampaign"])
 pexels.com##div[class="RowItem_gridItem__OfhML RowItem_fullWidth__cIdtN RowItem_expand__TR5R6"]
+pexels.com##div[class^="AfterDownloadModal_adContainer"]
 pexels.com##div[class^="FullWidth_container_"]:has(a[rel="sponsored noopener"])
 pexels.com##div[data-testid="item"]:has(a[href*="/r/"][rel~="nofollow"][target="_blank"])
 pexels.com##div[data-testid="item"]:has(a[href^="https://www.pexels.com/g/"])
@@ -16915,6 +16919,7 @@ stackabuse.com###ad-snigel-1
 stackabuse.com###ad-snigel-2
 stackabuse.com###ad-snigel-3
 stackabuse.com###ad-snigel-4
+stackexchange.com##.js-native-comment-ad
 stackexchange.com##.js-zone-container
 stackoverflow.com###hireme
 stackoverflow.com##.js-sidebar-zone
