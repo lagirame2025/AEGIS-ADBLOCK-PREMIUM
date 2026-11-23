@@ -18833,7 +18833,8 @@ www.yahoo.com##body#news-content-app li:has(.inset-0)
 www.yahoo.com##body.font-yahoobeta > div.items-center:has(style)
 wzstats.gg##.landscape-ad-container
 x-hd.video##.video-brs
-x.com##[id^="urt"]>ul>li:has([class*="data-ad-disclosure"])
+x.com##[id^="urt"] > ul > li:has([class*="data-ad-disclosure"])
+x.com##[id^="urt"] > ul > li:has([target="_blank"][href*="?twclid="])
 xasiat.com##.top:has(> [data-zoneid])
 xbabe.com##.bnnrs-aside
 xbooru.com,xxxymovies.com###smb
