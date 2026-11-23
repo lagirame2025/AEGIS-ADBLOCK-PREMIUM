@@ -11853,6 +11853,7 @@ gamepix.com##div[id^="gpx-banner"]
 gameplay.tips##.ads_sticky
 gamepur.com###top-sticky-sidebar-wrapper
 gamepur.com##.wp-block-dotesports-affiliate-button
+gamertweak.com##.ad-fixed-container
 gamertweak.com##.bannerdiv
 gamertweak.com##.kfzyntmcd-caption
 gamertweak.com##.rsgvqezdh-container
@@ -16919,7 +16920,6 @@ stackabuse.com###ad-snigel-1
 stackabuse.com###ad-snigel-2
 stackabuse.com###ad-snigel-3
 stackabuse.com###ad-snigel-4
-stackexchange.com##.js-native-comment-ad
 stackexchange.com##.js-zone-container
 stackoverflow.com###hireme
 stackoverflow.com##.js-sidebar-zone
