@@ -8544,6 +8544,7 @@ anysex.com,jizzberry.com###main_video_fluid_html_on_pause
 aol.co.uk,aol.com##.m-gam__container
 aol.com###m-games-overlay-main-right-rail-ads
 aol.com##.m-healthgrades
+aol.com##.swiper-slide:has(.dl__slide--ad)
 apartmenttherapy.com##.Post__inPostVideoAdMobile
 apartmenttherapy.com##.StickyFooter
 apartmenttherapy.com##.pov_recirc__ad
@@ -17126,6 +17127,10 @@ t.17track.net##.up-deals
 t.17track.net##.up-deals-img
 t3.com##.leaderboard__container
 tabloidbintang.com##div[style="position:absolute; top:20px; left:45px; width:70px; background:#000; text-align:center;"]
+tabloidsenayan.com##.sidebar-item-ads
+tabloidsenayan.com##.ts-ad-slot
+tabloidsenayan.com##.ts-managed-ad
+tabloidsenayan.com##.ts-netad
 tafsirweb.com###iklanACT
 tafsirweb.com###promo-after
 tafsirweb.com###promo-banner
