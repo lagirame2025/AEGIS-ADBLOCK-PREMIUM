@@ -13348,6 +13348,7 @@ justjared.com##.header-container__main
 justjared.com##.tpd-ob-reserve
 justjared.com,justjaredjr.com##.top_rail_shell
 justjared.com,theblast.com##.tpd-tcm-widget
+justjared.com,theblast.com##ad-component
 justpicsplease.com##.ba
 justthegays.tv###ad-banner
 justthegays.tv##.zd-slot
@@ -14061,7 +14062,7 @@ makemytrip.com##.hotelTileDt:has(.icSponsored)
 makemytrip.com##li:has(> [class="cardInteractive"] img[src*="sponsoredtag"])
 maketecheasier.com##.header-widget
 makeuseof.com,military.com##.sidebar-first
-makeuseof.com,polygon.com##.sidebar-default
+makeuseof.com,polygon.com,simpleflying.com##.sidebar-default
 malaysiakini.com###gpt-layout-top-container
 malaysiakini.com##.hero_adslot
 malaysiakini.com##.my-5
@@ -16648,7 +16649,9 @@ simontokx.tv##.close-text
 simonwillison.net###sponsored-banner
 simpcity.cr##.blockitsowereplaceit
 simpcity.cr##.prm-wrapper
+simpleflying.com##.ad-zone
 simpleflying.com##.an-injected
+simpleflying.com##a[rel*="sponsored"]
 simply-hentai.com##.superbanner
 simracingsetup.com##.ad-fixed-bottom
 simracingsetup.com##.cta-box
