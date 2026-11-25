@@ -12793,6 +12793,7 @@ igi-global.com##.banner-carousel-item
 igi-global.com##.margin-bottom-15.inline-block-100
 igi-global.com##.width-100
 ign.com##.background-image.content-block
+ign.com##.pgOutstream
 ign.com##.wiki-bobble
 ign.com,mashable.com,pcmag.com##.zad
 igo-bokep.bond###GLOBAL-ADS-CLOSE
@@ -16925,7 +16926,6 @@ stackabuse.com###ad-snigel-1
 stackabuse.com###ad-snigel-2
 stackabuse.com###ad-snigel-3
 stackabuse.com###ad-snigel-4
-stackexchange.com##.js-zone-container
 stackoverflow.com###hireme
 stackoverflow.com##.js-sidebar-zone
 stadiumtalk.com##.story-section-inStory-inline
