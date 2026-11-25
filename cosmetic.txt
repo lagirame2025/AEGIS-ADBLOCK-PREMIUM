@@ -8671,9 +8671,9 @@ ascopost.com##.section--full-width-ad
 ascopost.com,fermanaghherald.com,sofx.com##.ad-text
 ascopost.com,kingmods.net,tappedout.net,tvinsider.com##.banner-ad
 ashemaletube.com##div[class*="pinbar"]
-ashemaletube.com,boyfriendtv.com,fetishpapa.com##.grid:has(a[href*="faphouse.com"])
-ashemaletube.com,boyfriendtv.com,fetishpapa.com##.right-rail-block
-ashemaletube.com,boyfriendtv.com,fetishpapa.com##a[href*="faphouse.com"]
+ashemaletube.com,boyfriendtv.com,fetishpapa.com,pornoxo.com##.grid:has(a[href*="faphouse.com"])
+ashemaletube.com,boyfriendtv.com,fetishpapa.com,pornoxo.com##.right-rail-block
+ashemaletube.com,boyfriendtv.com,fetishpapa.com,pornoxo.com##a[href*="faphouse.com"]
 asheville.com##.injected-ads
 asiangay.tv,asiangaysex.net,gaysex.tv,gayxx.net,japangaysex.com,jav.com.co##.float-ck
 asianjournal.com###fancybox-overlay
@@ -11848,6 +11848,7 @@ gamelevate.com##[data-adpath]
 gamemodding.com##.big_banner
 gamemodding.com##.right_banner
 gamepadla.com##.gpPartnerCard
+gamepadla.com##.pMain + div:not([class])[style*="aspect-ratio"]
 gamepadla.com##.panel-container:has(img[src*="/upload/slider/"])
 gamepadla.com##div:has(> div > div > a[href^="/visit/"][href*="cmp=slider"])
 gamepix.com##div[id^="gpx-banner"]
@@ -15785,6 +15786,7 @@ pornone.com##.warp
 pornone.com##a[class^="listing"]
 pornoreino.com##.bottom-bang
 pornoreino.com##.right-side
+pornoxo.com##a.player-click-layer
 pornpapa.com##.js-mob-popup
 pornpics.com##.c-model
 pornpics.com##.r2-frame
