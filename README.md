@@ -89,3 +89,12 @@ Batasan: DNS tidak bisa memblokir iklan yang satu domain dengan konten (mis. You
 
 ## v1.8 — Windows & ekstensi browser
 Folder `desktop/`: `AegisSetup.exe` (filter DNS Windows x64), ekstensi MV3 untuk Chrome/Edge/Opera/Firefox/Safari, mesin pintar judol/scam/clickbait/Smart Ads. Lihat `desktop/README.md`.
+
+## v1.8 (DoT pribadi + ketahanan koneksi)
+- **Mode hibrida DoT** (opsional, tombol "Server DoT pribadi" di panel): query yang lolos filter dikirim lewat DNS-over-TLS ke server Anda sendiri; layar status menampilkan jumlah *dijawab DoT* vs *jatuh ke DNS biasa*. Kosongkan host/IP untuk mematikan. Berlaku setelah proteksi dinyalakan ulang.
+  - Satu koneksi TLS dibagi semua query (pipelining), sertifikat diverifikasi terhadap nama host.
+  - **Pemutus sirkuit**: bila server DoT/port 853 tidak terjangkau, query langsung jatuh ke DNS biasa tanpa menunggu timeout (jeda 10 dtk, naik hingga 5 menit; mode ketat 1,5 dtk), dan direset saat berpindah Wi-Fi/seluler. SERVFAIL dari server DoT juga memicu fallback.
+  - *Mode ketat* DoT: tidak pernah jatuh ke DNS biasa (internet bisa mati bila server mati). Biarkan mati kecuali Anda paham risikonya.
+- Perbaikan stabilitas: `startForeground` dipanggil lebih awal (mencegah crash bila VPN gagal dibuat saat autostart), `MainActivity`/`BootReceiver` tidak lagi dapat dipanggil aplikasi lain, blocklist dimuat di thread latar saat membuka panel.
+- Perubahan di `desktop/` dan `server/` tidak lagi memicu build APK.
+- **Server**: lihat `server/dot/` (Blocky + Docker, sertifikat Let's Encrypt, rate limit nftables). Langkah ada di komentar `docker-compose.yml`.

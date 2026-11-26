@@ -46,6 +46,11 @@ class AdBlockVpnService : VpnService() {
         @Volatile var running = false
         val blockedCount = AtomicInteger(); val totalCount = AtomicInteger()
         val cacheHits = AtomicInteger(); val staleServed = AtomicInteger(); val hedged = AtomicInteger()
+        /** Mode hibrida DoT: jumlah query yang dijawab server DoT pribadi, dan yang gagal lalu jatuh ke DNS biasa. */
+        val dotServed = AtomicInteger(); val dotFallback = AtomicInteger()
+        /** Nama host DoT yang sedang dipakai (null bila mode hibrida mati) dan apakah mode ketat aktif. */
+        @Volatile var dotHost: String? = null
+        @Volatile var dotStrictOn = false
         const val FAKE_DNS = "10.111.0.1"
 
         /** Cache berumur panjang untuk domain yang terbukti CNAME-cloaking (menghindari query ulang tiap kali). */
@@ -73,7 +78,7 @@ class AdBlockVpnService : VpnService() {
         private const val CHANNEL_ID = "aegis_vpn_status"
         private const val NOTIF_ID = 42
     }
-    @Volatile private var tun: ParcelFileDescriptor? = null
+    private var tun: ParcelFileDescriptor? = null
     // Antrian dibatasi: saat banjir query, yang paling lama dibuang (klien toh sudah menyerah/mengulang),
     // sehingga memori tidak membengkak dan query baru tetap dilayani.
     private val pool = ThreadPoolExecutor(32, 32, 30L, TimeUnit.SECONDS, ArrayBlockingQueue<Runnable>(512),
@@ -106,6 +111,9 @@ class AdBlockVpnService : VpnService() {
     private val sysRank = ConcurrentHashMap<Network, Int>()
     private var netCb: ConnectivityManager.NetworkCallback? = null
 
+    @Volatile private var dot: DotClient? = null
+    @Volatile private var dotStrict = false
+
     private val tcpDns = TcpDns({ q -> answer(q, true) { null } }, { r -> pool.execute(r) })
 
     private class Flight { val latch = CountDownLatch(1); @Volatile var result: ByteArray? = null }
@@ -113,12 +121,13 @@ class AdBlockVpnService : VpnService() {
 
     override fun onStartCommand(i: Intent?, f: Int, id: Int): Int {
         if (i?.action == "STOP") { stop(); return START_NOT_STICKY }
-        // Android mewajibkan startForeground() dalam ~5 detik setelah startForegroundService() (mis. saat boot).
-        // Panggil PERTAMA, sebelum memuat blocklist besar / establish(), supaya tidak crash di HP lambat.
-        try { startForeground(NOTIF_ID, buildNotification()) } catch (_: Exception) { }
         if (running) return START_STICKY
         Blocklist.load(this)
         DnsCache.clear()
+        loadDot()
+        // Harus segera: bila dijalankan lewat startForegroundService (BootReceiver), Android mewajibkan startForeground
+        // dalam 5 detik, termasuk bila VPN akhirnya gagal dibuat (izin dicabut) -> tanpa ini aplikasi crash.
+        try { startForeground(NOTIF_ID, buildNotification()) } catch (_: Exception) { }
         // Bila user memakai Private DNS "hostname" sendiri, jangan ganggu DoT/DoH-nya (bisa memutus internet).
         val ownPrivateDns = try {
             Settings.Global.getString(contentResolver, "private_dns_mode") == "hostname"
@@ -136,8 +145,7 @@ class AdBlockVpnService : VpnService() {
         for (pkg in skip) { try { b.addDisallowedApplication(pkg) } catch (_: Exception) { } }
         if (getSharedPreferences("aegis_prefs", MODE_PRIVATE).getBoolean(Prefs.CALL_BYPASS, true))
             for (pkg in CALL_APPS) { try { b.addDisallowedApplication(pkg) } catch (_: Exception) { } }
-        // Izin VPN dicabut/belum ada: establish() null. Tutup notifikasi & layanan dengan rapi (tanpa crash).
-        val pfd = b.establish()
+        val pfd = try { b.establish() } catch (_: Exception) { null }
         if (pfd == null) { stop(); return START_NOT_STICKY }
         tun = pfd; running = true
         watchSystemDns()
@@ -182,12 +190,12 @@ class AdBlockVpnService : VpnService() {
         val inp = FileInputStream(pfd.fileDescriptor); val out = FileOutputStream(pfd.fileDescriptor)
         val buf = ByteArray(32767)
         try {
-            while (running && tun === pfd) {
+            while (running) {
                 val n = inp.read(buf); if (n <= 0) { Thread.sleep(20); continue }
                 // Satu paket cacat TIDAK boleh mematikan seluruh VPN: tangani per paket.
                 try { dispatch(buf, n, out) } catch (_: Exception) { }
             }
-        } catch (_: Exception) { } finally { if (running && tun === pfd) stop() }
+        } catch (_: Exception) { } finally { if (running) stop() }
     }
 
     private fun dispatch(buf: ByteArray, n: Int, out: FileOutputStream) {
@@ -281,8 +289,19 @@ class AdBlockVpnService : VpnService() {
     }
 
     private fun queryUpstreams(key: String, name: String, dns: ByteArray, end: Int, qtype: Int, viaTcp: Boolean): ByteArray {
-        val ups = pickUpstreams()
-        val r = (if (viaTcp) raceTcp(dns, ups) else race(dns, ups)) ?: return Dns.failReply(dns, end)
+        // Mode hibrida: query yang lolos filter lebih dulu ke server DoT pribadi. Bila gagal, jatuh ke DNS biasa
+        // kecuali mode ketat (lalu SERVFAIL cepat, tidak pernah membocorkan query ke DNS polos).
+        val d = dot
+        // SERVFAIL dari server DoT (upstream-nya sendiri bermasalah) diperlakukan sebagai gagal agar tetap ada jalan keluar.
+        val fromDot = d?.query(dns)?.takeIf { (it[3].toInt() and 0x0F) != 2 }
+        if (d != null) {
+            if (fromDot != null) dotServed.incrementAndGet() else dotFallback.incrementAndGet()
+            if (fromDot == null && dotStrict) return Dns.failReply(dns, end)
+        }
+        val r = fromDot ?: run {
+            val ups = pickUpstreams()
+            (if (viaTcp) raceTcp(dns, ups) else race(dns, ups)) ?: return Dns.failReply(dns, end)
+        }
         val a = Dns.parseAnswer(r) ?: return r
         // CNAME cloaking: domain "first-party" yang ternyata alias ke domain pelacak/iklan. Izin eksplisit user menang.
         if (a.cnames.isNotEmpty() && !Blocklist.isAllowed(name)) {
@@ -294,7 +313,7 @@ class AdBlockVpnService : VpnService() {
             }
         }
         // Balasan besar dari TCP tidak di-cache: klien UDP tanpa EDNS tidak bisa menerimanya.
-        if (!a.truncated && !(viaTcp && r.size > 512)) {
+        if (!a.truncated && !((viaTcp || fromDot != null) && r.size > 512)) {
             if (a.rcode == 0 && a.answers > 0) DnsCache.put(key, r, a.minTtl.coerceIn(30L, 900L), STALE_SEC)
             // Negative caching: NXDOMAIN / NODATA (sering untuk AAAA & HTTPS) tidak perlu ditanyakan ulang.
             else if (a.rcode == 3 || (a.rcode == 0 && a.answers == 0))
@@ -321,6 +340,19 @@ class AdBlockVpnService : VpnService() {
             u.fail()
         }
         return null
+    }
+
+    /** Baca konfigurasi DoT saat VPN dinyalakan (perubahan di dialog berlaku setelah proteksi dinyalakan ulang). */
+    private fun loadDot() {
+        dot?.close(); dot = null; dotStrict = false; dotHost = null; dotStrictOn = false
+        val sp = getSharedPreferences("aegis_prefs", MODE_PRIVATE)
+        val h = (sp.getString(Prefs.DOT_HOST, "") ?: "").trim()
+        val ip = (sp.getString(Prefs.DOT_IP, "") ?: "").trim()
+        if (h.isEmpty() || ip.isEmpty()) return
+        dotStrict = sp.getBoolean(Prefs.DOT_STRICT, false)
+        dot = DotClient(h, ip, dotStrict) { protect(it) }
+        dotHost = h; dotStrictOn = dotStrict
+        dotServed.set(0); dotFallback.set(0)
     }
 
     private fun pickUpstreams(): List<Upstream> {
@@ -402,6 +434,7 @@ class AdBlockVpnService : VpnService() {
                     }
                     sysUps[n] = l
                     DnsCache.clear() // jaringan berganti: jawaban lama (mis. CDN regional) bisa tidak relevan
+                    dot?.reset()     // koneksi DoT lama terikat jaringan lama
                 }
                 override fun onCapabilitiesChanged(n: Network, c: NetworkCapabilities) {
                     var r = if (c.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)) 0 else 10
@@ -409,7 +442,7 @@ class AdBlockVpnService : VpnService() {
                          else if (c.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) 1 else 2
                     sysRank[n] = r
                 }
-                override fun onLost(n: Network) { sysUps.remove(n); sysRank.remove(n) }
+                override fun onLost(n: Network) { sysUps.remove(n); sysRank.remove(n); dot?.reset() }
             }
             cm.registerNetworkCallback(req, cb); netCb = cb
         } catch (_: Exception) { }
@@ -421,7 +454,7 @@ class AdBlockVpnService : VpnService() {
     }
 
     private fun stop() {
-        running = false; unwatchSystemDns(); tun?.close(); tun = null
+        running = false; unwatchSystemDns(); tun?.close(); tun = null; dot?.close(); dot = null
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             stopForeground(STOP_FOREGROUND_REMOVE)
         } else {
@@ -432,5 +465,5 @@ class AdBlockVpnService : VpnService() {
     // Called by Android the instant the user revokes VPN permission from
     // system Settings. We must stop immediately here — never resist this.
     override fun onRevoke() { stop() }
-    override fun onDestroy() { running = false; unwatchSystemDns(); tun?.close(); super.onDestroy() }
+    override fun onDestroy() { running = false; unwatchSystemDns(); tun?.close(); dot?.close(); dot = null; super.onDestroy() }
 }

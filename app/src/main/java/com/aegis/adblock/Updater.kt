@@ -63,9 +63,7 @@ class Updater(c: Context, p: WorkerParameters) : Worker(c, p) {
             val b = download(ctx, "cosmetic.txt", 100, false)
             if (a == R.UPDATED) { Blocklist.load(ctx); DnsCache.clear() }
             if (b == R.UPDATED) Cosmetic.load(ctx)
-            // blocklist.txt wajib berhasil (atau tidak berubah). cosmetic.txt hanya pelengkap: gagal sendiri tidak
-            // boleh menutupi blocklist yang basi, dan sebaliknya.
-            val ok = a != R.FAIL
+            val ok = a != R.FAIL || b != R.FAIL
             if (ok) ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putLong("last_ok", System.currentTimeMillis()).apply()
             return ok
         }
@@ -74,7 +72,7 @@ class Updater(c: Context, p: WorkerParameters) : Worker(c, p) {
 
         fun schedule(ctx: Context) {
             val req = PeriodicWorkRequestBuilder<Updater>(12, TimeUnit.HOURS)
-                .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).setRequiresBatteryNotLow(true).build()).build()
+                .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()).build()
             WorkManager.getInstance(ctx).enqueueUniquePeriodicWork("blocklist", ExistingPeriodicWorkPolicy.KEEP, req)
         }
     }

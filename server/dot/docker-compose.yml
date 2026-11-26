@@ -1,0 +1,51 @@
+# Server DoT pribadi Aegis: Blocky di Docker + sertifikat Let's Encrypt.
+#
+# Catatan penting: container Blocky berjalan sebagai user non-root (UID 100), sedangkan kunci privat
+# Let's Encrypt hanya bisa dibaca root. Karena itu sertifikat DISALIN ke ./certs oleh deploy-hook
+# (blocky-cert-hook.sh) dengan pemilik UID 100, bukan di-mount langsung dari /etc/letsencrypt.
+#
+# Langkah awal (sekali saja, di server; ganti dot.contoh.com):
+#   1. Arahkan A-record dot.contoh.com ke IP server.
+#   2. apt install certbot
+#   3. Letakkan semua berkas di folder ini (mis. /opt/blocky): docker-compose.yml, blocky-config.yml,
+#      blocky-cert-hook.sh, nftables-dot.conf. Lalu: chmod +x blocky-cert-hook.sh
+#   4. Port 80/tcp harus bebas & terbuka sementara untuk validasi:
+#        certbot certonly --standalone -d dot.contoh.com \
+#          --deploy-hook "/opt/blocky/blocky-cert-hook.sh dot.contoh.com"
+#      Deploy-hook tersimpan di konfigurasi renewal, jadi perpanjangan otomatis ikut menyalin sertifikat
+#      baru dan me-restart Blocky. Hook ini juga berjalan sekali saat certbot pertama selesai.
+#   5. Validasi config (perintah di bawah), lalu: docker compose up -d
+#   6. Pasang rate limit: nft -c -f nftables-dot.conf && nft -f nftables-dot.conf
+#   7. Buka port 853/tcp di firewall/security group server.
+#
+# Uji dari mesin lain:
+#   kdig -d @IP_SERVER +tls-host=dot.contoh.com +tls-ca example.com
+#
+# Validasi config dengan image yang sama (jalankan setelah ./certs terisi):
+#   docker run --rm -v "$PWD/blocky-config.yml:/app/config.yml:ro" -v "$PWD/certs:/certs:ro" \
+#     spx01/blocky:TAG validate --config /app/config.yml
+
+services:
+  blocky:
+    # Ganti TAG dengan versi rilis tertentu (lihat halaman Releases Blocky di GitHub); jangan pakai :latest
+    # agar skema config tidak berubah diam-diam.
+    image: spx01/blocky:TAG
+    container_name: blocky
+    restart: unless-stopped
+    ports:
+      - "853:853/tcp"        # hanya DoT. Port 5353 (DNS polos) dan 4000 (HTTP) sengaja TIDAK dipublikasikan.
+    environment:
+      - TZ=Asia/Jakarta
+    volumes:
+      - ./blocky-config.yml:/app/config.yml:ro
+      - ./certs:/certs:ro
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "/app/blocky", "healthcheck", "--port", "5353"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    logging:
+      driver: json-file
+      options: { max-size: "5m", max-file: "3" }

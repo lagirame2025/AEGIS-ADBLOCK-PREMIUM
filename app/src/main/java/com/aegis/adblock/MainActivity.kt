@@ -40,6 +40,7 @@ class MainActivity : Activity() {
         val pd = Button(this).apply { text = "Private DNS (tanpa VPN, WiFi & 5G)"; setOnClickListener { privateDns() } }
         val logBtn = Button(this).apply { text = "Log diblokir (cek situs/aplikasi rusak)"; setOnClickListener { showLog() } }
         val rulesBtn = Button(this).apply { text = "Aturan sendiri (blokir / izinkan domain)"; setOnClickListener { showRules() } }
+        val dotBtn = Button(this).apply { text = "Server DoT pribadi (mode hibrida)"; setOnClickListener { DotSettings.show(this@MainActivity) } }
 
         prefs = getSharedPreferences("aegis_prefs", Context.MODE_PRIVATE)
         val autostartRow = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER }
@@ -102,9 +103,11 @@ class MainActivity : Activity() {
             setOnCheckedChangeListener { _, on -> prefs.edit().putBoolean(Prefs.AUTO, on).apply() }
         })
         root.addView(fixBtn); root.addView(autoRow)
-        root.addView(bypassBtn); root.addView(logBtn); root.addView(rulesBtn); root.addView(battery); root.addView(upd)
+        root.addView(dotBtn); root.addView(bypassBtn); root.addView(logBtn); root.addView(rulesBtn); root.addView(battery); root.addView(upd)
         setContentView(ScrollView(this).apply { isFillViewport = true; addView(root) })
-        Blocklist.load(this); Updater.schedule(this)
+        val appCtx = applicationContext
+        Thread { try { Blocklist.load(appCtx) } catch (_: Exception) { } }.start()
+        Updater.schedule(this)
 
         // Android 13+: tanpa izin ini notifikasi status (dan tombol "Matikan") tidak tampil.
         if (Build.VERSION.SDK_INT >= 33 &&
@@ -120,7 +123,16 @@ class MainActivity : Activity() {
         stats.text = "Status: ${if (AdBlockVpnService.running) "AKTIF" else "mati"}\nDomain di blocklist: ${Blocklist.size()}\n" +
             "Query DNS: ${AdBlockVpnService.totalCount.get()}\nIklan diblokir: ${AdBlockVpnService.blockedCount.get()}\n" +
             "Dari cache: ${AdBlockVpnService.cacheHits.get()} (basi: ${AdBlockVpnService.staleServed.get()})  Hedged: ${AdBlockVpnService.hedged.get()}\n" +
+            dotStatusText() +
             "Pembaruan terakhir: ${lastUpdateText()}"
+    }
+    /** Baris status mode hibrida: kosong bila mati, selain itu jumlah dijawab DoT vs jatuh ke DNS biasa. */
+    private fun dotStatusText(): String {
+        val cfg = prefs.getString(Prefs.DOT_HOST, "") ?: ""
+        if (!AdBlockVpnService.running) return if (cfg.isNotEmpty()) "DoT pribadi: $cfg (menunggu proteksi aktif)\n" else ""
+        val host = AdBlockVpnService.dotHost ?: return if (cfg.isNotEmpty()) "DoT pribadi: $cfg (berlaku setelah proteksi dinyalakan ulang)\n" else ""
+        return "DoT ${host}${if (AdBlockVpnService.dotStrictOn) " [ketat]" else ""}: " +
+            "dijawab ${AdBlockVpnService.dotServed.get()}  jatuh ke DNS biasa ${AdBlockVpnService.dotFallback.get()}\n"
     }
     private fun lastUpdateText(): String {
         val t = Updater.lastOk(this)

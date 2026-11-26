@@ -1,0 +1,72 @@
+# Konfigurasi Blocky untuk server DoT pribadi Aegis (dipakai bersama docker-compose.yml).
+# Salin/ganti nama dot.contoh.com dengan domain Anda. Validasi: lihat perintah "validate" di docker-compose.yml.
+#
+# Pembagian tugas: filter iklan sudah dikerjakan aplikasi Aegis di HP, jadi server ini hanya resolver DoT
+# yang bersih (tanpa denylist) agar tidak ada pemblokiran ganda yang sulit dilacak.
+
+ports:
+  # DNS polos hanya di dalam container (dipakai healthcheck); port ini TIDAK dipublikasikan di compose.
+  dns: 5353
+  # DoT untuk klien Aegis.
+  tls: 853
+  # HTTP (API/metrik) dimatikan: tidak perlu, dan tidak dipublikasikan.
+  # http: 4000   <- sengaja dikomentari
+
+certFile: /certs/fullchain.pem
+keyFile: /certs/privkey.pem
+minTlsServeVersion: 1.2
+
+# Hanya IPv4 yang dipakai klien Aegis, tetapi upstream tetap boleh menjawab AAAA.
+connectIPVersion: dual
+
+upstreams:
+  init:
+    strategy: fast   # tetap start meski upstream belum terjangkau saat boot
+  groups:
+    default:
+      # Upstream lewat DNS-over-TLS (query dari server ke internet juga terenkripsi).
+      - tcp-tls:1.1.1.1:853
+      - tcp-tls:9.9.9.9:853
+      - tcp-tls:8.8.8.8:853
+  strategy: parallel_best   # tanya 2 upstream acak, ambil yang tercepat
+  timeout: 2s
+
+# Hanya dipakai bila upstream ditulis dengan nama host.
+bootstrapDns:
+  - tcp+udp:1.1.1.1
+  - tcp+udp:9.9.9.9
+
+caching:
+  minTime: 30s
+  maxTime: 15m
+  maxItemsCount: 20000
+  prefetching: true
+  prefetchExpires: 2h
+  prefetchThreshold: 5
+  cacheTimeNegative: 30s
+
+# Tanpa denylist (lihat catatan di atas). Untuk mengaktifkan filter di server, tambahkan:
+# blocking:
+#   denylists:
+#     ads:
+#       - https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
+#   blockType: zeroIp
+#   loading:
+#     downloads: { cachePath: /tmp/blocky }
+
+# Privasi: log tidak menyimpan IP klien maupun nama domain.
+log:
+  level: warn
+  format: text
+  privacy: true
+
+queryLog:
+  type: none
+
+prometheus:
+  enable: false
+
+# Hindari ECS/identitas klien diteruskan ke upstream.
+ecs:
+  useAsClient: false
+  forward: false

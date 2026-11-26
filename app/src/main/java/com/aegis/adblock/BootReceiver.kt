@@ -27,4 +27,8 @@ object Prefs {
     const val BYPASS = "bypass_apps"
     const val AUTO = "auto_allow"
     const val CALL_BYPASS = "call_apps_bypass"
+    // Server DoT pribadi (mode hibrida); dibaca AdBlockVpnService.loadDot(), ditulis DotSettings.
+    const val DOT_HOST = "dot_host"
+    const val DOT_IP = "dot_ip"
+    const val DOT_STRICT = "dot_strict"
 }

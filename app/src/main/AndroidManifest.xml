@@ -21,7 +21,7 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity" android:exported="true"/>
+        <activity android:name=".MainActivity" android:exported="false"/>
         <activity android:name=".BrowserActivity" android:exported="false" android:configChanges="orientation|screenSize|keyboardHidden"/>
         <service android:name=".AdBlockVpnService" android:exported="false"
             android:foregroundServiceType="specialUse"
@@ -30,7 +30,7 @@
                 android:value="VPN DNS ad-blocking filter requested by the user"/>
             <intent-filter><action android:name="android.net.VpnService"/></intent-filter>
         </service>
-        <receiver android:name=".BootReceiver" android:exported="true">
+        <receiver android:name=".BootReceiver" android:exported="false">
             <intent-filter><action android:name="android.intent.action.BOOT_COMPLETED"/></intent-filter>
         </receiver>
     </application>
