@@ -1,7 +1,7 @@
 name: Build APK
 on:
   push:
-    paths-ignore: ['blocklist.txt', 'cosmetic.txt', 'pipeline/**', '**.md']
+    paths-ignore: ['blocklist.txt', 'cosmetic.txt', 'pipeline/**', 'desktop/**', 'server/**', '**.md']
   workflow_dispatch:
 permissions: {contents: read}
 concurrency:
