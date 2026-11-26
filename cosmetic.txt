@@ -10865,6 +10865,7 @@ dosgamesarchive.com##.banner_container
 dot.la##.job-wrapper
 dotesports.com,gameskinny.com,primagames.com,themarysue.com,twinfinite.net##.wp-block-gamurs-ad
 dotesports.com,progameguides.com###gg-masthead
+dotnetfiddle.net##.container-sponsor
 doujin.desu.xxx##.partner-slot-frame
 doujin.desu.xxx##[href^="https://klik.best/"]
 doujin.desu.xxx##a[target*="blank"]:has(> img):not(.btn-link)
