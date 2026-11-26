@@ -1,11 +1,11 @@
 {
  "sources": {
   "https://adaway.org/hosts.txt": 6539,
-  "https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt": 194215,
+  "https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt": 194321,
   "https://pgl.yoyo.org/adservers/serverlist.php?hostformat=hosts&showintro=0&mimetype=plaintext": 3555,
   "https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts": 81668,
   "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/domains/popupads.txt": 0,
   "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/domains/pro.txt": 0
  },
- "total": 229880
+ "total": 229985
 }
