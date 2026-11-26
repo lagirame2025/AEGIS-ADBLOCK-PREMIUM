@@ -4,7 +4,9 @@ on:
   push:
     paths: ['desktop/**']
     tags: ['desktop-v*']
-concurrency: { group: build-desktop-${{ github.ref }}, cancel-in-progress: true }
+concurrency:
+  group: build-desktop-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   build:
     runs-on: ubuntu-latest
