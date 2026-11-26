@@ -11973,6 +11973,7 @@ gearspace.com##.thread__sidebar-ad-container
 gearspace.com##div.deal__unit
 geekflare.com##.geekflare-core-resources
 geekflare.com##.x-article-818cc9d4
+geeksforgeeks.org##.saleModalPanel
 geeksforgeeks.org##.textBasedMannualAds_2
 geeksforgeeks.org##.three90RightBarBanner
 geeksforgeeks.org##div[id^="GFG_AD_"]
@@ -17212,7 +17213,9 @@ techloy.com###announcement-bar-root
 techmeme.com###hiring
 techmeme.com###qwdbfwh
 techmeme.com###sponsorposts
+techmeme.com###tdbuacdq
 techmeme.com##.ifsp
+techmeme.com##.sp_post
 technclub.com##.wbyqkx-container
 technewsworld.com###tnavad
 technical.city##div[class^="banner_"]
