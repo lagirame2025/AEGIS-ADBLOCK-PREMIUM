@@ -16064,7 +16064,7 @@ rappler.com##.rappler-ad-container
 rasa.my##.code-block-6
 rasa.my##div[data-ub-carousel]
 rasmussenreports.com##.rr-ad-image
-raspberrytips.com###block-11
+raspberrytips.com,techbarrista.com###block-11
 raspians.com###block-29
 raspians.com###block-31
 rat.xxx##.b-spot
@@ -16623,6 +16623,8 @@ shemale777.com##.covid19
 sherbrookerecord.com##.sam-pro-container
 sherdog.com###adViAi
 sheshaft.com,sleazyneasy.com,wankoz.com##.content-aside
+shiftdelete.net###header-container
+shiftdelete.net##.sd-ad
 shipt.com##.searchPageStaticBanner:has([href*="/shop/featured-promotions"])
 shipt.com##[id^="cms-ad_banner"]
 shirodoujin.com##.shirotheme-ad-modal
@@ -17200,6 +17202,11 @@ tech.hindustantimes.com##.m-to-add
 tech.hindustantimes.com##.primeDay
 tech.hindustantimes.com##.sponsoredBox
 tech.hindustantimes.com##.topGadgetsAppend
+techbarrista.com###block-12
+techbarrista.com###block-13
+techbarrista.com###block-14
+techbarrista.com###block-20
+techbarrista.com##.techb-entity-placement
 techbone.net##.mb-5.bg-light
 techdirt.com##.top-promo
 techgenyz.com##.td-adspot-title
