@@ -9022,6 +9022,7 @@ bernama.com##.tracked-banner
 bernama.com##a[class^="banner_photo_"]
 best-faucets.com,transfermarkt.co.uk,transfermarkt.com##.werbung
 bestbuy.ca##.pencilAd_EE9DV
+bestbuy.ca##.superLeaderboard_dvejh
 bestbuy.ca##.x-productListItem:has([data-automation="sponsoredProductLabel"])
 bestbuy.ca##[class^="sponsoredProdBoxGridArea"]
 bestbuy.ca##div.x-productListItem:has([class^="sponsoredProduct"])
@@ -15470,6 +15471,7 @@ phonearena.com##.pa-sticky-container
 phonearena.com##.spot-sticky-container
 phonearena.com##.widgetOffers
 phoneia.com##[data-index]
+phoronix.com##[name="phoronix_desktop_leaderboard_header"]
 photographyreview.com##.bottom-leaderboard
 photojpl.com###google01
 photonics.com##.BOX_CarouselAd
