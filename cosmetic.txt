@@ -12808,6 +12808,7 @@ igo.desu.xxx##main div.my-2:has(a[target="_blank"][rel*="nofollow"])
 igo.desu.xxx##uads_300x250
 igorslab.de###extras > #single-sticky + div:has(img)
 igorslab.de##.entry-content > a:has(> img):has(+ aside.ilab-ad-privacy-footer)
+igorslab.de##.entry-content > a:has(> img):not([href*="igorslab.de"]):has(~ aside.ilab-ad-privacy-footer)
 igorslab.de##.herald-sidebar
 igorslab.de##.widget_custom_html:has(> .widget-title + .textwidget:empty)
 igorslab.de##[data-igorslab-trackid]
