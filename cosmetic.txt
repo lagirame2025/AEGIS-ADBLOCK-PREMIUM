@@ -16985,6 +16985,8 @@ steam.design##a.profile_video[href^="https://duobot.com/"]
 steamanalyst.com##.row.tpbcontainer
 steamanalyst.com##.tpbcontainerr
 steamcardexchange.net###advertisement
+steamdb.info###js-deals
+steamdb.info##app-sale-events
 steamgifts.com##.fanatical_container
 steamidfinder.com###nn_player_wrapper
 steamladder.com##.pt-large
